@@ -1,0 +1,74 @@
+/* 60% */
+.pantalla {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #D3EAF8;
+  font-family: Arial, sans-serif;
+  color: #1F3A56;
+}
+
+/* 30% */
+.tarjeta {
+  width: 100%;
+  max-width: 400px;
+  padding: 35px;
+  background-color: #BCD6F2;
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+
+h1 {
+  margin: 0 0 5px 0;
+  text-align: center;
+}
+
+.subtitulo {
+  margin: 0 0 25px 0;
+  text-align: center;
+}
+
+.campo {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+/* 60% */
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #F6FBFF;
+  border: 2px solid #A7C7E7;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #1F3A56;
+}
+
+/* 10% */
+.boton {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1F3A56;
+  background-color: #A7C7E7;
+  border: 2px solid #1F3A56;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background-color: #BFE8DF;
+}
