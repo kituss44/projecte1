@@ -1,4 +1,3 @@
-/* 60% */
 .pantalla {
   min-height: 100vh;
   display: flex;
@@ -39,7 +38,6 @@ label {
   font-weight: bold;
 }
 
-/* 60% */
 input {
   width: 100%;
   padding: 12px;
@@ -55,7 +53,6 @@ input:focus {
   border-color: #1F3A56;
 }
 
-/* 10% */
 .boton {
   width: 100%;
   padding: 14px;
