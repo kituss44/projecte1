@@ -1,0 +1,96 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  font-family: Arial, sans-serif;
+  color: #1F3A56;
+}
+
+.contenedor {
+  flex: 1;
+  display: flex;
+  align-items: center;            /* centra el recuadro en vertical */
+  justify-content: center;        /* y en horizontal */
+  padding: 12px;
+  min-height: 0;
+}
+
+.panel {
+  width: min(100%, 520px);        /* recuadro centrado, como en el boceto */
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 3vh, 30px);
+  padding: clamp(20px, 3vw, 40px);
+  box-sizing: border-box;
+  background-color: #F6FBFF;
+  border-radius: 20px;
+  overflow-y: auto;
+}
+
+.titulo {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(18px, 1.8vw, 26px);
+  color: #1F3A56;
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2vh, 18px);
+}
+
+.campo {
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(14px, 2.5vh, 22px) 12px;
+  background-color: #FFFFFF;
+  border: 2px solid #A7C7E7;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: bold;
+  color: #1F3A56;
+  text-align: center;
+  outline: none;
+}
+
+.campo::placeholder {
+  color: #1F3A56;
+  opacity: 0.6;
+}
+
+.campo:focus {
+  border-color: #1F3A56;
+}
+
+/* Botón: mismo estilo y hover que los demás componentes */
+.boton {
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(14px, 3vh, 26px) 12px;
+  background-color: #BCD6F2;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(16px, 1.5vw, 22px);
+  font-weight: bold;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.boton:hover {
+  background-color: #A7C7E7;
+  transform: scale(1.02);
+  border-color: black;
+}
+
+/* Pantallas pequeñas */
+@media (max-width: 800px) {
+  .pagina {
+    height: auto;
+    min-height: 90vh;
+  }
+}
