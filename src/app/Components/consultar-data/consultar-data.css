@@ -85,8 +85,8 @@
   width: 100%;
   box-sizing: border-box;
   padding: clamp(14px, 3vh, 26px) 12px;
-  background-color: #BCD6F2;
-  border: 1px solid transparent;
+  background-color: #A7C7E7;
+  border: 1px solid black;
   border-radius: 12px;
   font-family: inherit;
   font-size: clamp(16px, 1.5vw, 22px);
@@ -97,7 +97,7 @@
 }
 
 .boton:hover {
-  background-color: #A7C7E7;
+  background-color: #BFE8DF;
   transform: scale(1.02);
   border-color: black;
 }
