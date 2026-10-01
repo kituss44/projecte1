@@ -1,1 +1,30 @@
-<p>registrar-entrada-manual works!</p>
+<app-menu-header/>
+
+<div class="registre_div">
+  <section class="panel">
+
+    <div class="campos">
+      <div class="fila">
+        <input type="text" class="campo" placeholder="Nom" aria-label="Nom">
+        <input type="text" class="campo" placeholder="Cognoms" aria-label="Cognoms">
+      </div>
+
+      <input type="text" class="campo" placeholder="Codi grup matriculat" aria-label="Codi grup matriculat">
+
+      <div class="separador-o">
+        <span>o</span>
+      </div>
+
+      <input type="text" class="campo" placeholder="Id ieduca" aria-label="Id ieduca">
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="boton">Buscar alumne</button>
+      <button type="button" class="boton" routerLink="/inserir">Tornar</button>
+    </div>
+
+  </section>
+</div>
+
+<app-foto-alumne/>
+<app-llistat-alumnes-lavabo/>

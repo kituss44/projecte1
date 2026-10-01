@@ -16,6 +16,7 @@ import { ConsultarIntervalDates } from './Components/consultar-interval-dates/co
 import { BddImportar } from './Components/bdd-importar/bdd-importar';
 import { BddVisualitzar } from './Components/bdd-visualitzar/bdd-visualitzar';
 import { BddEliminar } from './Components/bdd-eliminar/bdd-eliminar';
+import {RegistrarEntradaManual} from './Components/registrar-entrada-manual/registrar-entrada-manual';
 
 
 export const routes: Routes = [
@@ -36,4 +37,5 @@ export const routes: Routes = [
   { path: 'bddimportar', component: BddImportar},
   { path: 'bddvisualitzar', component: BddVisualitzar},
   { path: 'bddeliminar', component: BddEliminar},
+  { path: 'inserirManualment', component: RegistrarEntradaManual}
 ];
