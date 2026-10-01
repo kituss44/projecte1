@@ -1,0 +1,13 @@
+.pantalla {
+  position: fixed;
+  top: 70px;
+  right: 30%;
+  width: 25%;
+  height: 83vh;
+  overflow-y: auto;
+  padding: 20px 15px;
+  box-sizing: border-box;
+  background-color: #F6FBFF;
+  font-family: Arial, sans-serif;
+  color: #1F3A56;
+}

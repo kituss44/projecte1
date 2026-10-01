@@ -4,6 +4,7 @@ import { PerfilProfessor } from './Components/perfil-professor/perfil-professor'
 import { RegistrarEntrada } from './Components/registrar-entrada/registrar-entrada';
 import { Consultar } from './Components/consultar/consultar';
 import { Bdd } from './Components/bdd/bdd';
+import { LoginInicial } from './Components/login-inicial/login-inicial';
 
 
 export const routes: Routes = [
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'consultar', component: Consultar },
   { path: 'bdd', component: Bdd },
   { path: 'perfil', component: PerfilProfessor },
+  { path: '', component: LoginInicial}
 ];
