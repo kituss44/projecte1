@@ -22,6 +22,7 @@ import { PerfilAdminOpcions } from './Components/perfil-admin-opcions/perfil-adm
 import { PerfilAdminOpcionsCrear } from './Components/perfil-admin-opcions-crear/perfil-admin-opcions-crear';
 import { PerfilAdminOpcionsEditar } from './Components/perfil-admin-opcions-editar/perfil-admin-opcions-editar';
 import { PerfilAdminOpcionsEliminar } from './Components/perfil-admin-opcions-eliminar/perfil-admin-opcions-eliminar';
+import { ConsultarVista } from './Components/consultar-vista/consultar-vista';
 
 
 export const routes: Routes = [
@@ -48,4 +49,5 @@ export const routes: Routes = [
   { path: 'perfiladminopcionscrear', component: PerfilAdminOpcionsCrear},
   { path: 'perfiladminopcionseditar', component: PerfilAdminOpcionsEditar},
   { path: 'perfiladminopcionseliminar', component: PerfilAdminOpcionsEliminar},
+  { path: 'consultarvista', component: ConsultarVista},
 ];
