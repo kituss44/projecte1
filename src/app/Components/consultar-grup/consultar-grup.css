@@ -1,0 +1,30 @@
+.contenidor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 260px;
+  padding: 40px 50px;
+  background-color: #d3eaf8;
+}
+
+.camp,
+.boto {
+  padding: 8px;
+  border: 1px solid #a7c7e7;
+  text-align: center;
+  font-size: 14px;
+}
+
+.camp {
+  background-color: #f6fbff;
+}
+
+.boto {
+  background-color: #a7c7e7;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.boto:hover {
+  background-color: #bfe8df;
+}

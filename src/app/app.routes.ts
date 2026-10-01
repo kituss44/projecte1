@@ -9,6 +9,10 @@ import { ModificarCrearAlumne } from './Components/modificar-crear-alumne/modifi
 import { ModificarModificarAlumne } from './Components/modificar-modificar-alumne/modificar-modificar-alumne';
 import { ModificarEliminarAlumne } from './Components/modificar-eliminar-alumne/modificar-eliminar-alumne';
 import {ConsultarAlumne} from './Components/consultar-alumne/consultar-alumne';
+import { ConsultarGrup } from './Components/consultar-grup/consultar-grup';
+import { ConsultarData } from './Components/consultar-data/consultar-data';
+import { ConsultarProfessor } from './Components/consultar-professor/consultar-professor';
+import { ConsultarIntervalDates } from './Components/consultar-interval-dates/consultar-interval-dates';
 
 
 export const routes: Routes = [
@@ -21,5 +25,9 @@ export const routes: Routes = [
   { path: 'modificarcrear', component: ModificarCrearAlumne},
   { path: 'modificareditar', component: ModificarModificarAlumne},
   { path: 'modificareliminar', component: ModificarEliminarAlumne},
-  { path: 'consultaralumne', component: ConsultarAlumne}
+  { path: 'consultaralumne', component: ConsultarAlumne},
+  { path: 'consultargrup', component: ConsultarGrup},
+  { path: 'consultardata', component: ConsultarData},
+  { path: 'consultarprofessor', component: ConsultarProfessor},
+  { path: 'consultarinterval', component: ConsultarIntervalDates},
 ];
