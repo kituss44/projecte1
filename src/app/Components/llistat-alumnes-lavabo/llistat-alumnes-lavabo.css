@@ -1,9 +1,10 @@
 .pantalla {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 40px 20px;
+  position: fixed;
+  top: 70px;
+  right: 0;
+  width: 30%;
+  height: 100vh;
+  padding: 20px 15px;
   box-sizing: border-box;
   background-color: #D3EAF8;
   font-family: Arial, sans-serif;
@@ -12,8 +13,8 @@
 
 .lista {
   width: 100%;
-  max-width: 700px;
-  padding: 25px;
+  padding: 20px;
+  height: 83vh;
   background-color: #F6FBFF;
   border-radius: 20px;
   box-sizing: border-box;
