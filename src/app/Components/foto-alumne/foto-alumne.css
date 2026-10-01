@@ -1,13 +1,23 @@
 .pantalla {
   position: fixed;
-  top: 70px;
+  top: 90px;
   right: 30%;
   width: 25%;
   height: 83vh;
-  overflow-y: auto;
-  padding: 20px 15px;
+  padding: 0;
   box-sizing: border-box;
   background-color: #F6FBFF;
-  font-family: Arial, sans-serif;
-  color: #1F3A56;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pantalla img {
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  display: block;
+  border-radius: 20px;
 }
