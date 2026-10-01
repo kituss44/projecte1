@@ -20,7 +20,7 @@ import {RegistrarEntradaManual} from './Components/registrar-entrada-manual/regi
 import { PerfilAdmin } from './Components/perfil-admin/perfil-admin';
 import { PerfilAdminOpcions } from './Components/perfil-admin-opcions/perfil-admin-opcions';
 import { PerfilAdminOpcionsCrear } from './Components/perfil-admin-opcions-crear/perfil-admin-opcions-crear';
-import { PerfilAdminOpcionsAcceptar } from './Components/perfil-admin-opcions-acceptar/perfil-admin-opcions-acceptar';
+import { PerfilAdminOpcionsEditar } from './Components/perfil-admin-opcions-editar/perfil-admin-opcions-editar';
 import { PerfilAdminOpcionsEliminar } from './Components/perfil-admin-opcions-eliminar/perfil-admin-opcions-eliminar';
 
 
@@ -46,6 +46,6 @@ export const routes: Routes = [
   { path: 'perfiladmin', component: PerfilAdmin},
   { path: 'perfiladminopcions', component: PerfilAdminOpcions},
   { path: 'perfiladminopcionscrear', component: PerfilAdminOpcionsCrear},
-  { path: 'perfiladminopcionsaceptar', component: PerfilAdminOpcionsAcceptar},
+  { path: 'perfiladminopcionseditar', component: PerfilAdminOpcionsEditar},
   { path: 'perfiladminopcionseliminar', component: PerfilAdminOpcionsEliminar},
 ];
