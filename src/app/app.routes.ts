@@ -8,6 +8,7 @@ import { LoginInicial } from './Components/login-inicial/login-inicial';
 import { ModificarCrearAlumne } from './Components/modificar-crear-alumne/modificar-crear-alumne';
 import { ModificarModificarAlumne } from './Components/modificar-modificar-alumne/modificar-modificar-alumne';
 import { ModificarEliminarAlumne } from './Components/modificar-eliminar-alumne/modificar-eliminar-alumne';
+import {ConsultarAlumne} from './Components/consultar-alumne/consultar-alumne';
 
 
 export const routes: Routes = [
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: '', component: LoginInicial },
   { path: 'modificarcrear', component: ModificarCrearAlumne},
   { path: 'modificareditar', component: ModificarModificarAlumne},
-  { path: 'modificareliminar', component: ModificarEliminarAlumne}
+  { path: 'modificareliminar', component: ModificarEliminarAlumne},
+  { path: 'consultaralumne', component: ConsultarAlumne}
 ];

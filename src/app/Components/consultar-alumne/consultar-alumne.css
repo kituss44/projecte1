@@ -1,0 +1,107 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  font-family: Arial, sans-serif;
+  color: #1F3A56;
+}
+
+.contenedor {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  min-height: 0;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;  /* campo arriba, botón abajo */
+  gap: 20px;
+  padding: clamp(16px, 2vw, 30px);
+  box-sizing: border-box;
+  background-color: #F6FBFF;
+  border-radius: 20px;
+  overflow-y: auto;
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2vh, 18px);
+}
+
+.titulo {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: clamp(18px, 1.8vw, 26px);
+  color: #1F3A56;
+}
+
+.campo {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 12px;
+  background-color: #FFFFFF;
+  border: 2px solid #A7C7E7;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: bold;
+  color: #1F3A56;
+  text-align: center;
+  outline: none;
+}
+
+.campo-grande {
+  padding: clamp(18px, 3vh, 30px) 12px;
+  font-size: clamp(18px, 1.8vw, 26px);
+}
+
+.campo::placeholder {
+  color: #1F3A56;
+  opacity: 0.6;
+}
+
+.campo:focus {
+  border-color: #1F3A56;
+}
+
+/* Botón: mismo estilo y hover que los demás componentes */
+.boton {
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(14px, 3vh, 26px) 12px;
+  background-color: #BCD6F2;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(16px, 1.5vw, 22px);
+  font-weight: bold;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.boton:hover {
+  background-color: #A7C7E7;
+  transform: scale(1.02);
+  border-color: black;
+}
+
+/* Pantallas pequeñas: los dos recuadros se apilan */
+@media (max-width: 800px) {
+  .pagina {
+    height: auto;
+  }
+
+  .contenedor {
+    flex-direction: column;
+  }
+
+  .panel {
+    min-height: 50vh;
+  }
+}
