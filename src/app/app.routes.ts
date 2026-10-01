@@ -13,6 +13,9 @@ import { ConsultarGrup } from './Components/consultar-grup/consultar-grup';
 import { ConsultarData } from './Components/consultar-data/consultar-data';
 import { ConsultarProfessor } from './Components/consultar-professor/consultar-professor';
 import { ConsultarIntervalDates } from './Components/consultar-interval-dates/consultar-interval-dates';
+import { BddImportar } from './Components/bdd-importar/bdd-importar';
+import { BddVisualitzar } from './Components/bdd-visualitzar/bdd-visualitzar';
+import { BddEliminar } from './Components/bdd-eliminar/bdd-eliminar';
 
 
 export const routes: Routes = [
@@ -30,4 +33,7 @@ export const routes: Routes = [
   { path: 'consultardata', component: ConsultarData},
   { path: 'consultarprofessor', component: ConsultarProfessor},
   { path: 'consultarinterval', component: ConsultarIntervalDates},
+  { path: 'bddimportar', component: BddImportar},
+  { path: 'bddvisualitzar', component: BddVisualitzar},
+  { path: 'bddeliminar', component: BddEliminar},
 ];
