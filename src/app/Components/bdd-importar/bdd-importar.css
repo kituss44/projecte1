@@ -1,0 +1,84 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #D3EAF8;
+  font-family: Arial, sans-serif;
+  color: #2C4A63;
+}
+
+.panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 32px);
+  max-width: 460px;
+  box-sizing: border-box;
+  padding: 28px;
+  background: #F6FBFF;
+  border: 2px solid #BCD6F2;
+  border-radius: 16px;
+}
+
+h1 {
+  margin: 0 0 20px;
+  font-size: 20px;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px;
+  text-align: center;
+  background: #D3EAF8;
+  border: 2px dashed #A7C7E7;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  background: #BFE8DF;
+}
+
+.dropzone__icono {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.dropzone__titulo {
+  font-weight: bold;
+}
+
+.dropzone__ayuda {
+  font-size: 14px;
+}
+
+.dropzone input {
+  display: none;
+}
+
+.acciones {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #BCD6F2;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #BFE8DF;
+  transform: scale(1.02);
+  border-color: black;
+}
+
+
