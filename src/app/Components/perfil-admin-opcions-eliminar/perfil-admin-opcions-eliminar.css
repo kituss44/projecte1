@@ -1,0 +1,52 @@
+.professor-item {
+  background-color: #BCD6F2;
+  border: 1px solid #A7C7E7;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: Arial, sans-serif;
+}
+
+.professor-item p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.info {
+  flex: 1;
+  background-color: #FFFFFF;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.correu {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #444;
+}
+
+.data {
+  font-size: 14px;
+}
+
+.btn-item {
+  flex: none;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: #9FC3E8;
+  font-size: 15px;
+  font-weight: bold;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-item:hover {
+  background-color: #BFE8DF;
+  transform: scale(1.02);
+  border: 1px solid black;
+}
