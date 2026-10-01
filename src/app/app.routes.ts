@@ -18,6 +18,10 @@ import { BddVisualitzar } from './Components/bdd-visualitzar/bdd-visualitzar';
 import { BddEliminar } from './Components/bdd-eliminar/bdd-eliminar';
 import {RegistrarEntradaManual} from './Components/registrar-entrada-manual/registrar-entrada-manual';
 import { PerfilAdmin } from './Components/perfil-admin/perfil-admin';
+import { PerfilAdminOpcions } from './Components/perfil-admin-opcions/perfil-admin-opcions';
+import { PerfilAdminOpcionsCrear } from './Components/perfil-admin-opcions-crear/perfil-admin-opcions-crear';
+import { PerfilAdminOpcionsAcceptar } from './Components/perfil-admin-opcions-acceptar/perfil-admin-opcions-acceptar';
+import { PerfilAdminOpcionsEliminar } from './Components/perfil-admin-opcions-eliminar/perfil-admin-opcions-eliminar';
 
 
 export const routes: Routes = [
@@ -39,5 +43,9 @@ export const routes: Routes = [
   { path: 'bddvisualitzar', component: BddVisualitzar},
   { path: 'bddeliminar', component: BddEliminar},
   { path: 'inserirManualment', component: RegistrarEntradaManual},
-  { path: 'perfiladmin', component: PerfilAdmin}
+  { path: 'perfiladmin', component: PerfilAdmin},
+  { path: 'perfiladminopcions', component: PerfilAdminOpcions},
+  { path: 'perfiladminopcionscrear', component: PerfilAdminOpcionsCrear},
+  { path: 'perfiladminopcionsaceptar', component: PerfilAdminOpcionsAcceptar},
+  { path: 'perfiladminopcionseliminar', component: PerfilAdminOpcionsEliminar},
 ];
