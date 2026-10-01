@@ -1,4 +1,4 @@
-.reg_entrada_div{
+.reg_entrada_div {
   width: 43%;
   height: 83vh;
   margin-top: 27px;
@@ -11,7 +11,7 @@
   position: fixed;
   top: 70px;
   left: 0;
-  width: 45%;                     /* ocupa el hueco a la izquierda de la foto */
+  width: 45%;
   height: 100vh;
   padding: 20px 15px;
   box-sizing: border-box;
@@ -22,7 +22,7 @@
 
 .panel {
   width: 100%;
-  height: 83vh;                   /* misma altura que la lista y la foto */
+  height: 83vh;
   padding: 20px;
   box-sizing: border-box;
   background-color: #F6FBFF;
@@ -30,7 +30,7 @@
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* campos arriba, botones abajo */
+  justify-content: space-between;
   gap: 20px;
   overflow-y: auto;
 }
@@ -73,20 +73,17 @@
 .boton {
   padding: clamp(14px, 3vh, 26px) 12px;
   background-color: #BCD6F2;
-  border: 2px solid #A7C7E7;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .boton:hover {
-  background-color: #BFE8DF;
-}
-
-.boton:active {
   background-color: #A7C7E7;
+  transform: scale(1.02);
+  border-color: black;
 }
 
-/* Pantallas pequeñas: el bloque pasa a ocupar todo el ancho */
 @media (max-width: 800px) {
   .pantalla {
     position: static;
