@@ -1,0 +1,115 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  font-family: Arial, sans-serif;
+  color: #1F3A56;
+}
+
+.contenedor {
+  flex: 1;
+  display: flex;
+  align-items: center;             /* centra el recuadro en vertical */
+  justify-content: center;         /* y en horizontal */
+  padding: 12px;
+  min-height: 0;
+}
+
+.panel {
+  width: min(100%, 620px);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 3vh, 30px);
+  padding: clamp(20px, 3vw, 40px);
+  box-sizing: border-box;
+  background-color: #F6FBFF;
+  border-radius: 20px;
+  overflow-y: auto;
+}
+
+.titulo {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(20px, 2vw, 28px);
+  color: #1F3A56;
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2vh, 20px);
+}
+
+.etiqueta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: bold;
+  color: #1F3A56;
+}
+
+.campo {
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(14px, 2.5vh, 22px) 12px;
+  background-color: #FFFFFF;
+  border: 2px solid #A7C7E7;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: bold;
+  color: #1F3A56;
+  text-align: center;
+  outline: none;
+}
+
+.campo::placeholder {
+  color: #1F3A56;
+  opacity: 0.6;
+}
+
+.campo:focus {
+  border-color: #1F3A56;
+}
+
+/* Guardar y Cancelar en la misma línea */
+.acciones {
+  display: flex;
+  gap: clamp(10px, 1.5vw, 18px);
+}
+
+/* Botones: mismo estilo y hover que los demás componentes */
+.boton {
+  flex: 1;
+  box-sizing: border-box;
+  padding: clamp(14px, 3vh, 26px) 12px;
+  background-color: #BCD6F2;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(16px, 1.5vw, 22px);
+  font-weight: bold;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.boton:hover {
+  background-color: #A7C7E7;
+  transform: scale(1.02);
+  border-color: black;
+}
+
+
+@media (max-width: 800px) {
+  .pagina {
+    height: auto;
+    min-height: 90vh;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+}
