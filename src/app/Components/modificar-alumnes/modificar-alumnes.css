@@ -1,0 +1,41 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+.botons {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+}
+
+.boto {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.crear {
+  background: #BCD6F2;
+}
+
+.modificar {
+  background: #BCD6F2;
+}
+
+.eliminar {
+  background: #BCD6F2;
+}
+
+.boto:hover {
+  background: #A7C7E7;
+  transform: scale(1.02);
+  border: 1px solid black;
+}
