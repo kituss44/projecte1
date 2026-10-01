@@ -80,3 +80,17 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
+
+button:hover {
+  background: #A7C7E7;
+  border: 1px solid black;
+}
+
+.titol {
+  margin: 0 0 5px 0;
+  font-size: 1.8rem;
+  color: #1F3A5F;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #A7C7E7;
+}
