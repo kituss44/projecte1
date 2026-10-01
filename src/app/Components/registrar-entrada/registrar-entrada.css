@@ -1,0 +1,101 @@
+.reg_entrada_div{
+  width: 43%;
+  height: 83vh;
+  margin-top: 27px;
+  margin-left: 14px;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.pantalla {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 45%;                     /* ocupa el hueco a la izquierda de la foto */
+  height: 100vh;
+  padding: 20px 15px;
+  box-sizing: border-box;
+  background-color: #D3EAF8;
+  font-family: Arial, sans-serif;
+  color: #1F3A56;
+}
+
+.panel {
+  width: 100%;
+  height: 83vh;                   /* misma altura que la lista y la foto */
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #F6FBFF;
+  border-radius: 20px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* campos arriba, botones abajo */
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.campos,
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2vh, 18px);
+}
+
+.campo,
+.boton {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: bold;
+  color: #1F3A56;
+  text-align: center;
+}
+
+.campo {
+  padding: 14px 12px;
+  background-color: #FFFFFF;
+  border: 2px solid #A7C7E7;
+  outline: none;
+}
+
+.campo::placeholder {
+  color: #1F3A56;
+  opacity: 0.6;
+}
+
+.campo:focus {
+  border-color: #1F3A56;
+}
+
+.boton {
+  padding: clamp(14px, 3vh, 26px) 12px;
+  background-color: #BCD6F2;
+  border: 2px solid #A7C7E7;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.boton:hover {
+  background-color: #BFE8DF;
+}
+
+.boton:active {
+  background-color: #A7C7E7;
+}
+
+/* Pantallas pequeñas: el bloque pasa a ocupar todo el ancho */
+@media (max-width: 800px) {
+  .pantalla {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+
+  .panel {
+    height: auto;
+    min-height: 60vh;
+  }
+}
