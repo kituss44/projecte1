@@ -1,0 +1,46 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+.botons {
+  flex: 1;
+  display: flex;
+  flex-direction: column;   /* 3 filas apiladas */
+  gap: 12px;
+  padding: 12px;
+}
+
+.fila {
+  flex: 1;                  /* las 3 filas miden lo mismo */
+  display: flex;
+  gap: 12px;
+}
+
+.fila-centrada {
+  justify-content: center;
+}
+
+.boto {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  background: #BCD6F2;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+/* El botón de abajo queda centrado y más estrecho, como en el boceto */
+.fila-centrada .boto {
+  flex: 0 0 50%;
+}
+
+.boto:hover {
+  background: #A7C7E7;
+  transform: scale(1.02);
+  border: 1px solid black;
+}
