@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink} from '@angular/router';
 
 @Component({
@@ -8,4 +8,6 @@ import { RouterLink} from '@angular/router';
   styleUrl: './menu-header.css',
   templateUrl: './menu-header.html',
 })
-export class MenuHeader {}
+export class MenuHeader {
+  usuari = JSON.parse(sessionStorage.getItem('usuari') || 'null');
+}

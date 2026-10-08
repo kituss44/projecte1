@@ -23,31 +23,65 @@ import { PerfilAdminOpcionsCrear } from './Components/perfil-admin-opcions-crear
 import { PerfilAdminOpcionsEditar } from './Components/perfil-admin-opcions-editar/perfil-admin-opcions-editar';
 import { PerfilAdminOpcionsEliminar } from './Components/perfil-admin-opcions-eliminar/perfil-admin-opcions-eliminar';
 import { ConsultarVista } from './Components/consultar-vista/consultar-vista';
+import { authGuard } from './auth.guard';
+import { adminGuard } from './admin.guard';
+import { professorGuard } from './professor.guard';
 
 
 export const routes: Routes = [
-  { path: 'inserir', component: RegistrarEntrada },
-  { path: 'modificar', component: ModificarAlumnes },
-  { path: 'consultar', component: Consultar },
-  { path: 'bdd', component: Bdd },
-  { path: 'perfil', component: PerfilProfessor },
+  // Pública
   { path: '', component: LoginInicial },
-  { path: 'modificarcrear', component: ModificarCrearAlumne},
-  { path: 'modificareditar', component: ModificarModificarAlumne},
-  { path: 'modificareliminar', component: ModificarEliminarAlumne},
-  { path: 'consultaralumne', component: ConsultarAlumne},
-  { path: 'consultargrup', component: ConsultarGrup},
-  { path: 'consultardata', component: ConsultarData},
-  { path: 'consultarprofessor', component: ConsultarProfessor},
-  { path: 'consultarinterval', component: ConsultarIntervalDates},
-  { path: 'bddimportar', component: BddImportar},
-  { path: 'bddvisualitzar', component: BddVisualitzar},
-  { path: 'bddeliminar', component: BddEliminar},
-  { path: 'inserirManualment', component: RegistrarEntradaManual},
-  { path: 'perfiladmin', component: PerfilAdmin},
-  { path: 'perfiladminopcions', component: PerfilAdminOpcions},
-  { path: 'perfiladminopcionscrear', component: PerfilAdminOpcionsCrear},
-  { path: 'perfiladminopcionseditar', component: PerfilAdminOpcionsEditar},
-  { path: 'perfiladminopcionseliminar', component: PerfilAdminOpcionsEliminar},
-  { path: 'consultarvista', component: ConsultarVista},
+
+  // Totes les de dins exigeixen sessió vàlida
+  {
+    path: '',
+    canActivateChild: [authGuard],
+    children: [
+
+      // Només professors
+      {
+        path: '',
+        canActivateChild: [professorGuard],
+        children: [
+          { path: 'perfil', component: PerfilProfessor },
+          { path: 'inserir', component: RegistrarEntrada },
+          { path: 'inserirManualment', component: RegistrarEntradaManual },
+        ]
+      },
+
+      // Només admins
+      {
+        path: '',
+        canActivateChild: [adminGuard],
+        children: [
+          { path: 'perfiladmin', component: PerfilAdmin },
+          { path: 'perfiladminopcions', component: PerfilAdminOpcions },
+          { path: 'perfiladminopcionscrear', component: PerfilAdminOpcionsCrear },
+          { path: 'perfiladminopcionseditar', component: PerfilAdminOpcionsEditar },
+          { path: 'perfiladminopcionseliminar', component: PerfilAdminOpcionsEliminar },
+
+          { path: 'modificar', component: ModificarAlumnes },
+          { path: 'modificarcrear', component: ModificarCrearAlumne },
+          { path: 'modificareditar', component: ModificarModificarAlumne },
+          { path: 'modificareliminar', component: ModificarEliminarAlumne },
+
+          { path: 'consultar', component: Consultar },
+          { path: 'consultaralumne', component: ConsultarAlumne },
+          { path: 'consultargrup', component: ConsultarGrup },
+          { path: 'consultardata', component: ConsultarData },
+          { path: 'consultarprofessor', component: ConsultarProfessor },
+          { path: 'consultarinterval', component: ConsultarIntervalDates },
+          { path: 'consultarvista', component: ConsultarVista },
+
+          { path: 'bdd', component: Bdd },
+          { path: 'bddimportar', component: BddImportar },
+          { path: 'bddvisualitzar', component: BddVisualitzar },
+          { path: 'bddeliminar', component: BddEliminar },
+        ]
+      },
+    ]
+  },
+
+  // Qualsevol altra URL → login
+  { path: '**', redirectTo: '' }
 ];

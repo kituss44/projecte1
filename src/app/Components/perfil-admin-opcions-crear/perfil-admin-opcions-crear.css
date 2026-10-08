@@ -15,6 +15,26 @@
   min-height: 0;
 }
 
+.opcion {
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* centrat com la resta de camps */
+  gap: 10px;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: bold;
+  color: #1F3A56;
+  cursor: pointer;
+  user-select: none;
+}
+
+.check {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: #1F3A56;
+  cursor: pointer;
+}
+
 .panel {
   width: min(100%, 520px);        /* recuadro centrado, como en el boceto */
   max-height: 100%;

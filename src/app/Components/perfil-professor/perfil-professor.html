@@ -2,16 +2,16 @@
 
 <div class="container">
 
-  <p class="welcome">Benvolgut Hola</p>
+  <p class="welcome">Benvolgut {{ usuari?.nom }}</p>
 
   <div class="card">
-    <p>Nom: Hola</p>
-    <p>Cognom: Que</p>
-    <p>Correu: Tal</p>
+    <p>Nom: {{ usuari?.nom }}</p>
+    <p>Cognom: {{ usuari?.cognom }}</p>
+    <p>Correu: {{ usuari?.correu }}</p>
   </div>
 
   <div class="actions">
-    <button>Logout</button>
+    <button (click)="logout()">Logout</button>
   </div>
 
 </div>

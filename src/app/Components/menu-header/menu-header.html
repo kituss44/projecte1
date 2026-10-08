@@ -1,14 +1,21 @@
 <header class="app-header">
   <div class="logo"><img src="logo.png" alt="Institut Vidreres" class="logo-img"></div>
 
+  @if (usuari) {
+    <nav class="nav-buttons">
+      @if (usuari.admin) {
+        <button class="nav-btn" routerLink="/modificar">Modificar</button>
+        <button class="nav-btn" routerLink="/consultar">Consultar</button>
+        <button class="nav-btn" routerLink="/bdd">BDD</button>
+      } @else {
+        <button class="nav-btn" routerLink="/inserir">Inserir</button>
+      }
+    </nav>
 
-  <nav class="nav-buttons">
-    <button class="nav-btn" routerLink="/inserir">Inserir</button>
-    <button class="nav-btn" routerLink="/modificar">Modificar</button>
-    <button class="nav-btn" routerLink="/consultar">Consultar</button>
-    <button class="nav-btn" routerLink="/bdd">BDD</button>
-  </nav>
-
-  <button class="user-btn" routerLink="/perfil">👤 Nom Usuari</button>
-  <button class="user-btn" routerLink="/perfiladmin">👤 Admin Temporal </button>
+    @if (usuari.admin) {
+      <button class="user-btn" routerLink="/perfiladmin">👤 {{ usuari.nom }}</button>
+    } @else {
+      <button class="user-btn" routerLink="/perfil">👤 {{ usuari.nom }}</button>
+    }
+  }
 </header>

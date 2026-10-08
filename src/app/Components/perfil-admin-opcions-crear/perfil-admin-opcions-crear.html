@@ -7,13 +7,26 @@
       <h2 class="titulo">Crear usuari</h2>
 
       <div class="campos">
-        <input type="email" class="campo" placeholder="Correu" aria-label="Correu" autocomplete="off">
-        <input type="text" class="campo" placeholder="Nom" aria-label="Nom" autocomplete="off">
-        <input type="text" class="campo" placeholder="Cognom" aria-label="Cognom" autocomplete="off">
-        <input type="password" class="campo" placeholder="Password" aria-label="Password" autocomplete="new-password">
+        <input type="email" class="campo" placeholder="Correu" aria-label="Correu"
+               autocomplete="off" name="correu" [(ngModel)]="usuari.correu">
+        <input type="text" class="campo" placeholder="Nom" aria-label="Nom"
+               autocomplete="off" name="nom" [(ngModel)]="usuari.nom">
+        <input type="text" class="campo" placeholder="Cognom" aria-label="Cognom"
+               autocomplete="off" name="cognom" [(ngModel)]="usuari.cognom">
+        <input type="password" class="campo" placeholder="Password" aria-label="Password"
+               autocomplete="new-password" name="password" [(ngModel)]="usuari.password">
+
+        <label class="opcion">
+          <input type="checkbox" class="check" id="admin" name="admin" [(ngModel)]="usuari.admin">
+          <span>Admin</span>
+        </label>
       </div>
 
-      <button type="button" class="boton">Inserir</button>
+      <button type="button" class="boton" (click)="inserir()">Inserir</button>
+
+      @if (missatge()) {
+        <p [style.color]="error() ? 'crimson' : 'green'">{{ missatge() }}</p>
+      }
     </section>
 
   </main>

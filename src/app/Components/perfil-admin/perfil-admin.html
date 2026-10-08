@@ -2,14 +2,14 @@
 
 <div class="container">
 
-  <p class="welcome"><strong>Benvolgut Admin</strong></p>
+  <p class="welcome"><strong>Benvolgut {{ usuari?.nom }}</strong></p>
 
   <div class="card">
     <button routerLink="/perfiladminopcions">Gestió d'usuaris</button>
   </div>
 
   <div class="actions">
-    <button>Logout</button>
+    <button (click)="logout()">Logout</button>
   </div>
 
 </div>

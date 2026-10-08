@@ -3,18 +3,25 @@
     <h1>Registre de lavabo</h1>
     <p class="subtitulo">Inicia sessió per anotar als alumnes.</p>
 
-    <form>
+    <form (ngSubmit)="iniciarSessio()">
       <div class="campo">
         <label for="usuario">Usuari</label>
-        <input type="text" id="usuario" placeholder="El nom del teu usuari" required>
+        <input type="text" id="usuario" name="correu" placeholder="El teu correu"
+               [(ngModel)]="correu" required>
       </div>
 
       <div class="campo">
         <label for="password">Contrasenya</label>
-        <input type="password" id="password" placeholder="La teva contrasenya" required>
+        <input type="password" id="password" name="password" placeholder="La teva contrasenya"
+               [(ngModel)]="password" required>
       </div>
 
       <button type="submit" class="boton">Iniciar sessió</button>
+
+      @if (error()) {
+        <p style="color: crimson">{{ error() }}</p>
+      }
+
     </form>
   </section>
 </main>
