@@ -19,17 +19,20 @@
   width: auto;
 }
 
+/* El nav ocupa siempre el espacio disponible entre logo y usuario */
 .nav-buttons {
   display: flex;
   flex: 1;
-  justify-content: center;
   gap: 20px;
+  margin: 0 24px;
 }
 
+/* Los botones se reparten el ancho del nav a partes iguales */
 .nav-btn {
+  flex: 1;
   background-color: #BCD6F2;
   border: none;
-  padding: 10px 7%;
+  padding: 10px 0;
   font-size: 15px;
   font-weight: 600;
   color: #1f2937;
@@ -58,4 +61,3 @@
 .user-btn:hover {
   background-color: #BCD6F2;
 }
-
