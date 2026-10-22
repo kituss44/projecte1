@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'patata',
+  password: '1234qwer',
   database: 'cacaproject'
 });
 
@@ -278,10 +278,76 @@ app.get('/api/db/taules/:nom', async (req, res) => {
     const [files] = await pool.query('SELECT * FROM ??', [nom]);
     const columnes = files.length ? Object.keys(files[0]) : [];
 
-    res.json({ columnes, files });
+    const [pkRows] = await pool.query(
+      "SHOW KEYS FROM ?? WHERE Key_name = 'PRIMARY'",
+      [nom]
+    );
+    const pk = pkRows.map(r => r.Column_name);
+
+    res.json({ columnes, files, pk });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Actualitza files d'una taula
+app.put('/api/db/taules/:nom', async (req, res) => {
+  let connection;
+  try {
+    const nom = req.params.nom;
+    const { canvis } = req.body;
+
+    const taules = await llistarTaules();
+    if (!taules.includes(nom)) {
+      return res.status(404).json({ error: 'Taula no trobada' });
+    }
+    if (!Array.isArray(canvis) || canvis.length === 0) {
+      return res.status(400).json({ error: 'No hi ha canvis' });
+    }
+
+    const [colRows] = await pool.query('SHOW COLUMNS FROM ??', [nom]);
+    const columnesValides = colRows.map(c => c.Field);
+
+    const [pkRows] = await pool.query(
+      "SHOW KEYS FROM ?? WHERE Key_name = 'PRIMARY'",
+      [nom]
+    );
+    const pkCols = pkRows.map(r => r.Column_name);
+    if (pkCols.length === 0) {
+      return res.status(400).json({ error: 'La taula no té clau primària' });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    for (const { pk, valors } of canvis) {
+      const cols = Object.keys(valors || {});
+      if (
+        cols.length === 0 ||
+        !cols.every(c => columnesValides.includes(c)) ||
+        !pkCols.every(c => pk && pk[c] !== undefined)
+      ) {
+        throw new Error('Canvi invàlid');
+      }
+
+      const where = pkCols.map(() => '?? = ?').join(' AND ');
+      const paramsWhere = pkCols.flatMap(c => [c, pk[c]]);
+
+      await connection.query(
+        `UPDATE ?? SET ? WHERE ${where}`,
+        [nom, valors, ...paramsWhere]
+      );
+    }
+
+    await connection.commit();
+    res.json({ ok: true, actualitzades: canvis.length });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error(err);
+    res.status(500).json({ error: 'No s\'han pogut guardar els canvis' });
+  } finally {
+    if (connection) connection.release();
   }
 });
 

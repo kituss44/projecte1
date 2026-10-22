@@ -1,9 +1,37 @@
 <app-menu-header></app-menu-header>
 
-<div class="pestanyes">
-  @for (t of taules(); track t) {
-    <button [class.activa]="t === taulaActual()" (click)="seleccionar(t)">{{ t }}</button>
-  }
+<div class="barra">
+  <div class="cerca">
+    <input type="search"
+           placeholder="Cercar..."
+           [value]="cerca()"
+           (input)="cerca.set($any($event.target).value)">
+    <select [value]="columnaCerca()"
+            (change)="columnaCerca.set($any($event.target).value)">
+      <option value="">Totes les columnes</option>
+      @for (c of columnes(); track c) {
+        <option [value]="c">{{ c }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="pestanyes">
+    @for (t of taules(); track t) {
+      <button [class.activa]="t === taulaActual()" (click)="seleccionar(t)">{{ t }}</button>
+    }
+  </div>
+
+  <div class="accions">
+    @if (!editant()) {
+      <button class="btn-editar" [disabled]="!pk().length" (click)="editar()"
+              [title]="pk().length ? '' : 'Aquesta taula no té clau primària'">
+        Editar
+      </button>
+    } @else {
+      <button class="btn-cancelar" (click)="cancelar()">Cancel·lar</button>
+      <button class="btn-guardar" (click)="guardar()">Guardar</button>
+    }
+  </div>
 </div>
 
 @if (error()) { <p class="error">{{ error() }}</p> }
@@ -16,11 +44,24 @@
     </tr>
     </thead>
     <tbody>
-      @for (fila of files(); track $index) {
+      @for (item of filesFiltrades(); track item.i) {
         <tr>
-          @for (c of columnes(); track c) { <td>{{ format(fila[c]) }}</td> }
+          @for (c of columnes(); track c) {
+            <td>
+              @if (editant() && editable(c, item.fila[c])) {
+                <input [value]="valorEditat(item.i, c, item.fila[c])"
+                       (input)="canvia(item.i, c, $any($event.target).value)">
+              } @else {
+                {{ format(item.fila[c]) }}
+              }
+            </td>
+          }
         </tr>
+      } @empty {
+        <tr><td [attr.colspan]="columnes().length || 1" class="buit">Cap resultat</td></tr>
       }
     </tbody>
   </table>
 </div>
+
+<p class="recompte">{{ filesFiltrades().length }} de {{ files().length }} files</p>
