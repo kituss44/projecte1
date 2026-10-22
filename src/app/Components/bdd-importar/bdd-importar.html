@@ -1,21 +1,68 @@
-<app-menu-header/>
+
+<app-menu-header />
 
 <main class="panel">
   <h1>Importar arxiu</h1>
 
-  <label class="dropzone" for="arxiu">
-    <svg class="dropzone__icono" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
-            fill="none" stroke="currentColor" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round"/>
+  <label
+    class="dropzone"
+    for="arxiu"
+    (dragover)="$event.preventDefault()"
+    (drop)="onDrop($event)"
+  >
+    <svg class="dropzone__icono"
+         viewBox="0 0 24 24"
+         aria-hidden="true">
+      <path
+        d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
-    <span class="dropzone__titulo">Deixa aqui el teu arxiu CSV</span>
-    <span class="dropzone__ayuda">o fes clic aqui per a seleccionar-lo</span>
-    <input id="arxiu" type="file" accept=".csv,text/csv">
+
+    <span class="dropzone__titulo">
+      Deixa aquí el teu arxiu CSV
+    </span>
+
+    <span class="dropzone__ayuda">
+      o fes clic aquí per seleccionar-lo
+    </span>
+
+    <input
+      id="arxiu"
+      type="file"
+      accept=".csv,text/csv"
+      (change)="onFileSelected($event)"
+    />
   </label>
 
+  <p class="archivo" *ngIf="archivoSeleccionado">
+    Arxiu seleccionat: {{ archivoSeleccionado.name }}
+  </p>
+
+  <p class="mensaje" *ngIf="mensaje">
+    {{ mensaje }}
+  </p>
+
   <div class="acciones">
-    <button type="button" class="btn" routerLink="/bdd">Cancelar</button>
-    <button type="button" class="btn">Importar</button>
+    <button
+      type="button"
+      class="btn"
+      routerLink="/bdd"
+    >
+      Cancel·lar
+    </button>
+
+    <button
+      type="button"
+      class="btn btn--importar"
+      [disabled]="!archivoSeleccionado || cargando"
+      (click)="enviarArchivo()"
+    >
+      {{ cargando ? 'Important...' : 'Importar' }}
+    </button>
   </div>
 </main>

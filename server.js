@@ -3,6 +3,8 @@ const mysql = require('mysql2/promise');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const multer = require('multer');
+const { parse } = require('csv-parse/sync');
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:4200' }));
@@ -12,7 +14,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: '1234qwer',
+  password: 'patata',
   database: 'cacaproject'
 });
 
@@ -112,6 +114,128 @@ app.post('/api/logout', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.toLowerCase().endsWith('.csv')) {
+      return cb(new Error('Només es permeten fitxers CSV'));
+    }
+    cb(null, true);
+  }
+});
+
+app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
+  let connection;
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No s’ha rebut cap fitxer'
+      });
+    }
+
+    // Leer el CSV. Acepta encabezados en la primera fila.
+    const contenido = req.file.buffer.toString('utf8');
+
+    const registros = parse(contenido, {
+      columns: true,
+      skip_empty_lines: true,
+      bom: true,
+      trim: true,
+      delimiter: [',', ';']
+    });
+
+    if (registros.length === 0) {
+      return res.status(400).json({
+        error: 'El CSV no conté registres'
+      });
+    }
+
+    // Ajusta estos nombres a los encabezados reales de tu CSV
+    // y a los nombres exactos de las columnas de tu tabla.
+    const columnas = [
+      'idEducacio',
+      'nom',
+      'cognom1',
+      'cognom2',
+      'codiGrupMatricula',
+      'urlImatge',
+      'correu',
+      'conflictiu'
+    ];
+
+    const encabezados = Object.keys(registros[0]);
+
+    const faltantes = columnas.filter(
+      columna => !encabezados.includes(columna)
+    );
+
+    if (faltantes.length > 0) {
+      return res.status(400).json({
+        error: 'Falten columnes al CSV',
+        columnasFaltantes: faltantes
+      });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const sql = `
+      INSERT INTO alumne
+      (
+        idEducacio,
+        nom,
+        cognom1,
+        cognom2,
+        codiGrupMatricula,
+        urlImatge,
+        correu,
+        conflictiu
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    for (const fila of registros) {
+      await connection.execute(sql, [
+        fila.idEducacio,
+        fila.nom,
+        fila.cognom1,
+        fila.cognom2 || null,
+        fila.codiGrupMatricula,
+        fila.urlImatge || null,
+        fila.correu,
+        fila.conflictiu === '1' ||
+        fila.conflictiu?.toLowerCase() === 'true' ? 1 : 0
+      ]);
+    }
+
+    await connection.commit();
+
+    res.status(201).json({
+      mensaje: 'Importació completada correctament',
+      registrosInsertados: registros.length
+    });
+
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+
+    console.error('Error important CSV:', error);
+
+    res.status(500).json({
+      error: 'No s’ha pogut importar el CSV'
+    });
+
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 

@@ -1,50 +1,54 @@
-body {
-  margin: 0;
+
+:host {
+  display: block;
   min-height: 100vh;
   background: #D3EAF8;
   font-family: Arial, sans-serif;
   color: #2C4A63;
+  overflow: auto;
+  box-sizing: border-box;
 }
 
 .panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: calc(100% - 32px);
   max-width: 460px;
   box-sizing: border-box;
+  margin: 48px auto;
   padding: 28px;
   background: #F6FBFF;
   border: 2px solid #BCD6F2;
   border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(44 74 99 / 10%);
 }
 
 h1 {
   margin: 0 0 20px;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .dropzone {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 16px;
+  justify-content: center;
+  gap: 10px;
+  padding: 36px 16px;
   text-align: center;
   background: #D3EAF8;
   border: 2px dashed #A7C7E7;
   border-radius: 12px;
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .dropzone:hover {
   background: #BFE8DF;
+  border-color: #6BAE9E;
 }
 
 .dropzone__icono {
   width: 40px;
   height: 40px;
-  margin-bottom: 8px;
 }
 
 .dropzone__titulo {
@@ -59,6 +63,13 @@ h1 {
   display: none;
 }
 
+.archivo,
+.mensaje {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .acciones {
   display: flex;
   gap: 12px;
@@ -68,17 +79,37 @@ h1 {
 .btn {
   flex: 1;
   padding: 12px;
-  font-size: 16px;
-  background-color: #BCD6F2;
+  font-size: 15px;
+  color: #2C4A63;
+  background: #BCD6F2;
   border: 1px solid transparent;
   border-radius: 10px;
   cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
 }
 
-.btn:hover {
-  background-color: #BFE8DF;
-  transform: scale(1.02);
-  border-color: black;
+.btn:hover:not(:disabled) {
+  background: #BFE8DF;
+  transform: translateY(-1px);
+  border-color: #2C4A63;
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
+.btn--importar {
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .panel {
+    margin: 24px auto;
+    padding: 20px;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+}
