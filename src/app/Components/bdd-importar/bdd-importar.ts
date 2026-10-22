@@ -43,9 +43,9 @@ export class BddImportar {
   seleccionarArchivo(archivo: File): void {
     this.mensaje = '';
 
-    if (!archivo.name.toLowerCase().endsWith('.csv')) {
+    if (!/\.(xlsx|xls)$/i.test(archivo.name)) {
       this.archivoSeleccionado = undefined;
-      this.mensaje = 'Selecciona un fitxer CSV.';
+      this.mensaje = 'Selecciona un fitxer Excel (.xlsx o .xls).';
       return;
     }
 

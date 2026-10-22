@@ -4,7 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const multer = require('multer');
-const { parse } = require('csv-parse/sync');
+const XLSX = require('xlsx');
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:4200' }));
@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: '1234qwer',
+  password: 'patata',
   database: 'cacaproject'
 });
 
@@ -122,14 +122,24 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (!file.originalname.toLowerCase().endsWith('.csv')) {
-      return cb(new Error('Només es permeten fitxers CSV'));
+    if (!/\.(xlsx|xls)$/i.test(file.originalname)) {
+      return cb(new Error('Només es permeten fitxers Excel (.xlsx o .xls)'));
     }
     cb(null, true);
   }
 });
 
-app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
+// Envolta multer perquè els seus errors es retornin com a JSON (400)
+function pujarArxiu(req, res, next) {
+  upload.single('archivo')(req, res, err => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}
+
+app.post('/api/importar-csv', pujarArxiu, async (req, res) => {
   let connection;
 
   try {
@@ -139,37 +149,39 @@ app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
       });
     }
 
-    // Leer el CSV. Acepta encabezados en la primera fila.
-    const contenido = req.file.buffer.toString('utf8');
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const hoja = workbook.Sheets[workbook.SheetNames[0]]; // primera hoja
 
-    const registros = parse(contenido, {
-      columns: true,
-      skip_empty_lines: true,
-      bom: true,
-      trim: true,
-      delimiter: [',', ';']
+    // Lee las filas usando la primera fila como cabecera
+    const registrosRaw = XLSX.utils.sheet_to_json(hoja, { defval: '', raw: false });
+
+    // Quita espacios sobrantes en los nombres de las cabeceras y en los valores
+    const registros = registrosRaw.map(fila => {
+      const limpia = {};
+      for (const [clave, valor] of Object.entries(fila)) {
+        limpia[clave.trim()] = typeof valor === 'string' ? valor.trim() : valor;
+      }
+      return limpia;
     });
 
     if (registros.length === 0) {
       return res.status(400).json({
-        error: 'El CSV no conté registres'
+        error: 'L’Excel no conté registres'
       });
     }
 
-    // Ajusta estos nombres a los encabezados reales de tu CSV
-    // y a los nombres exactos de las columnas de tu tabla.
     const columnas = [
       'idEducacio',
       'nom',
       'cognom1',
       'cognom2',
       'codiGrupMatricula',
-      'urlImatge',
       'correu',
       'conflictiu'
     ];
 
     const encabezados = Object.keys(registros[0]);
+    console.log('Capçaleres rebudes:', encabezados);
 
     const faltantes = columnas.filter(
       columna => !encabezados.includes(columna)
@@ -177,7 +189,7 @@ app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
 
     if (faltantes.length > 0) {
       return res.status(400).json({
-        error: 'Falten columnes al CSV',
+        error: 'Falten columnes a l’Excel',
         columnasFaltantes: faltantes
       });
     }
@@ -188,29 +200,34 @@ app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
     const sql = `
       INSERT INTO alumne
       (
-        idEducacio,
+        idIeduca,
         nom,
         cognom1,
         cognom2,
-        codiGrupMatricula,
-        urlImatge,
+        codiGrupMatriculat,
         correu,
         conflictiu
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
     for (const fila of registros) {
+      // Accepta: 1, true, si, sí (en majúscules o minúscules)
+      const conflictiu = ['1', 'true', 'si', 'sí'].includes(
+        String(fila.conflictiu).trim().toLowerCase()
+      ) ? 1 : 0;
+
+      // Els "--" i les cel·les buides es guarden com a NULL
+      const aNull = v => (v === undefined || v === '' || v === '--') ? null : v;
+
       await connection.execute(sql, [
         fila.idEducacio,
         fila.nom,
-        fila.cognom1,
-        fila.cognom2 || null,
+        aNull(fila.cognom1),
+        aNull(fila.cognom2),
         fila.codiGrupMatricula,
-        fila.urlImatge || null,
         fila.correu,
-        fila.conflictiu === '1' ||
-        fila.conflictiu?.toLowerCase() === 'true' ? 1 : 0
+        conflictiu
       ]);
     }
 
@@ -226,10 +243,11 @@ app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
       await connection.rollback();
     }
 
-    console.error('Error important CSV:', error);
+    console.error('Error important Excel:', error);
 
     res.status(500).json({
-      error: 'No s’ha pogut importar el CSV'
+      error: 'No s’ha pogut importar l’Excel',
+      detall: error.sqlMessage || error.message
     });
 
   } finally {

@@ -23,9 +23,7 @@
       />
     </svg>
 
-    <span class="dropzone__titulo">
-      Deixa aquí el teu arxiu CSV
-    </span>
+    <span class="dropzone__titulo">Deixa aquí el teu arxiu Excel</span>
 
     <span class="dropzone__ayuda">
       o fes clic aquí per seleccionar-lo
@@ -34,7 +32,7 @@
     <input
       id="arxiu"
       type="file"
-      accept=".csv,text/csv"
+      accept=".xlsx,.xls"
       (change)="onFileSelected($event)"
     />
   </label>
