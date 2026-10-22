@@ -202,9 +202,10 @@ app.post('/api/importar-csv', pujarArxiu, async (req, res) => {
         nom,
         cognom1,
         cognom2,
-        codiGrupMatriculat
+        codiGrupMatriculat,
+        conflictiu
       )
-      VALUES (?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, 0)
     `;
 
     for (const fila of registros) {
