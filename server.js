@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'patata',
+  password: '1234qwer',
   database: 'cacaproject'
 });
 
@@ -238,5 +238,43 @@ app.post('/api/importar-csv', upload.single('archivo'), async (req, res) => {
     }
   }
 });
+
+
+        // VISUALITZAR BASES DE DADES
+
+async function llistarTaules() {
+  const [rows] = await pool.query('SHOW TABLES');
+  return rows.map(r => Object.values(r)[0]);
+}
+
+// Llista de taules
+app.get('/api/db/taules', async (req, res) => {
+  try {
+    res.json(await llistarTaules());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Contingut d'una taula
+app.get('/api/db/taules/:nom', async (req, res) => {
+  try {
+    const nom = req.params.nom;
+    const taules = await llistarTaules();
+    if (!taules.includes(nom)) {
+      return res.status(404).json({ error: 'Taula no trobada' });
+    }
+
+    const [files] = await pool.query('SELECT * FROM ??', [nom]);
+    const columnes = files.length ? Object.keys(files[0]) : [];
+
+    res.json({ columnes, files });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 
 app.listen(3000, () => console.log('Servidor a http://localhost:3000'));

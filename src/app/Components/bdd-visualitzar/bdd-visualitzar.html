@@ -1,1 +1,26 @@
-<p>bdd-visualitzar works!</p>
+<app-menu-header></app-menu-header>
+
+<div class="pestanyes">
+  @for (t of taules(); track t) {
+    <button [class.activa]="t === taulaActual()" (click)="seleccionar(t)">{{ t }}</button>
+  }
+</div>
+
+@if (error()) { <p class="error">{{ error() }}</p> }
+
+<div class="taula-wrapper">
+  <table>
+    <thead>
+    <tr>
+      @for (c of columnes(); track c) { <th>{{ c }}</th> }
+    </tr>
+    </thead>
+    <tbody>
+      @for (fila of files(); track $index) {
+        <tr>
+          @for (c of columnes(); track c) { <td>{{ format(fila[c]) }}</td> }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
