@@ -176,8 +176,6 @@ app.post('/api/importar-csv', pujarArxiu, async (req, res) => {
       'cognom1',
       'cognom2',
       'codiGrupMatricula',
-      'correu',
-      'conflictiu'
     ];
 
     const encabezados = Object.keys(registros[0]);
@@ -204,18 +202,12 @@ app.post('/api/importar-csv', pujarArxiu, async (req, res) => {
         nom,
         cognom1,
         cognom2,
-        codiGrupMatriculat,
-        correu,
-        conflictiu
+        codiGrupMatriculat
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?)
     `;
 
     for (const fila of registros) {
-      // Accepta: 1, true, si, sí (en majúscules o minúscules)
-      const conflictiu = ['1', 'true', 'si', 'sí'].includes(
-        String(fila.conflictiu).trim().toLowerCase()
-      ) ? 1 : 0;
 
       // Els "--" i les cel·les buides es guarden com a NULL
       const aNull = v => (v === undefined || v === '' || v === '--') ? null : v;
@@ -225,9 +217,7 @@ app.post('/api/importar-csv', pujarArxiu, async (req, res) => {
         fila.nom,
         aNull(fila.cognom1),
         aNull(fila.cognom2),
-        fila.codiGrupMatricula,
-        fila.correu,
-        conflictiu
+        fila.codiGrupMatricula
       ]);
     }
 
