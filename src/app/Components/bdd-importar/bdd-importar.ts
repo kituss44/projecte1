@@ -37,7 +37,7 @@ export class BddImportar {
       titulo: 'Importar alumnes',
       textoDropzone: 'Deixa aquí el teu arxiu .xls/.xlsx',
       ayudaColumnas:
-        'El xls/xlsx ha de tenir les columnes: idEducacio, nom, cognom1, cognom2 i codiGrupMatricula.',
+        'El .xls/.xlsx ha de tenir les columnes: idEducacio, nom, cognom1, cognom2 i codiGrupMatricula.',
       accept: '.xlsx,.xls',
       extensiones: /\.(xlsx|xls)$/i,
       mensajeFormato: 'Selecciona un fitxer Excel (.xlsx o .xls).',
@@ -61,9 +61,9 @@ export class BddImportar {
       etiqueta: 'Noms dels professors',
       descripcion: 'Nom complet, amb els dos cognoms',
       titulo: 'Importar noms dels professors',
-      textoDropzone: 'Deixa aquí el teu arxiu xls/xlsx',
+      textoDropzone: 'Deixa aquí el teu arxiu .xls/.xlsx',
       ayudaColumnas:
-        'El xls/xlsx ha de contenir una columna amb el nom complet del professor',
+        'El .xls/.xlsx ha de contenir una columna amb el nom complet del professor',
       accept: '.xlsx,.xls',
       extensiones: /\.(xlsx|xls)$/i,
       mensajeFormato: 'Selecciona un fitxer Excel (.xlsx o .xls).',
@@ -74,9 +74,9 @@ export class BddImportar {
       etiqueta: 'Usuaris',
       descripcion: 'Comptes per iniciar sessió',
       titulo: 'Importar usuaris',
-      textoDropzone: 'Deixa aquí el teu arxiu xls/xlsx',
+      textoDropzone: 'Deixa aquí el teu arxiu .xls/.xlsx',
       ayudaColumnas:
-        'El xls/xlsx ha de contenir: correu, nom, cognoms, password i, admin (1 = admin o 0 = no admin).',
+        'El .xls/.xlsx ha de contenir: correu, nom, cognoms, password i, admin (1 = admin o 0 = no admin).',
       accept: '.xlsx,.xls',
       extensiones: /\.(xlsx|xls)$/i,
       mensajeFormato: 'Selecciona un fitxer Excel (.xlsx o .xls).',
@@ -168,6 +168,9 @@ export class BddImportar {
       case 'alumnos':
         this.importarAlumnos(this.archivoSeleccionado);
         break;
+      case 'profesores':
+        this.importarProfesores(this.archivoSeleccionado);
+        break;
       case 'usuarios':
         this.importarUsuarios(this.archivoSeleccionado);
         break;
@@ -208,6 +211,51 @@ export class BddImportar {
         this.mensaje = error instanceof TimeoutError
           ? 'El servidor no ha respost a temps.'
           : error.error?.error || 'Error en importar l\'Excel.';
+
+        console.error(error);
+      }
+    });
+  }
+
+
+  private importarProfesores(archivo: File): void {
+    const formData = new FormData();
+    formData.append('archivo', archivo, archivo.name);
+
+    this.cargando = true;
+    this.mensaje = '';
+
+    this.http.post<{
+      mensaje?: string;
+      registrosInsertados?: number;
+      duplicados?: number;
+      error?: string;
+    }>(
+      'http://localhost:3000/api/importar-professors',
+      formData
+    ).pipe(
+      timeout(60000),
+      finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (respuesta) => {
+        this.mensaje =
+          `${respuesta.mensaje}. Professors inserits: ` +
+          `${respuesta.registrosInsertados}`;
+
+        if (respuesta.duplicados) {
+          this.mensaje += `, ${respuesta.duplicados} ja existien`;
+        }
+
+        this.mensaje += '.';
+        this.archivoSeleccionado = undefined;
+      },
+      error: (error) => {
+        this.mensaje = error instanceof TimeoutError
+          ? 'El servidor no ha respost a temps.'
+          : error.error?.error || 'Error en importar els professors.';
 
         console.error(error);
       }

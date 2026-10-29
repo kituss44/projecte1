@@ -248,6 +248,90 @@ app.post('/api/importar-csv', pujarArxiu, async (req, res) => {
   }
 });
 
+app.post('/api/importar-professors', pujarArxiu, async (req, res) => {
+  let connection;
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No s’ha rebut cap fitxer' });
+    }
+
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const hoja = workbook.Sheets[workbook.SheetNames[0]];
+
+    // Cada fila como array: se usa la primera celda con contenido (nombre completo)
+    const filas = XLSX.utils.sheet_to_json(hoja, { header: 1, defval: '', raw: false });
+
+    let nombres = filas
+      .map(fila => String(fila.find(celda => String(celda).trim() !== '') ?? '').trim())
+      .filter(nombre => nombre !== '');
+
+    // Si la primera fila es una cabecera (Nom, Professor, Nom complet...), se descarta
+    const esCabecera = /^(nom|nombre|professor|professorat|profesor|nom complet|nomprofessor)$/i;
+    if (nombres.length > 0 && esCabecera.test(nombres[0])) {
+      nombres.shift();
+    }
+
+    if (nombres.length === 0) {
+      return res.status(400).json({ error: 'L’Excel no conté noms de professors' });
+    }
+
+    if (nombres.some(nombre => nombre.length > 255)) {
+      return res.status(400).json({ error: 'Hi ha noms de més de 255 caràcters' });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Para no duplicar: se ignoran los que ya existen y los repetidos dentro del Excel
+    const [existentes] = await connection.query('SELECT nomprofessor FROM professor');
+    const vistos = new Set(existentes.map(r => r.nomprofessor.trim().toLowerCase()));
+
+    let insertados = 0;
+    let duplicados = 0;
+
+    for (const nombre of nombres) {
+      const clave = nombre.toLowerCase();
+
+      if (vistos.has(clave)) {
+        duplicados++;
+        continue;
+      }
+
+      await connection.execute(
+        'INSERT INTO professor (nomprofessor) VALUES (?)',
+        [nombre]
+      );
+      vistos.add(clave);
+      insertados++;
+    }
+
+    await connection.commit();
+
+    res.status(201).json({
+      mensaje: 'Importació completada correctament',
+      registrosInsertados: insertados,
+      duplicados
+    });
+
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+
+    console.error('Error important professors:', error);
+
+    res.status(500).json({
+      error: 'No s’han pogut importar els professors',
+      detall: error.sqlMessage || error.message
+    });
+
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+});
 
         // VISUALITZAR BASES DE DADES
 
