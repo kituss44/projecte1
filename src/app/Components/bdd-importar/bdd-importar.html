@@ -37,30 +37,26 @@
     />
   </label>
 
-  <p class="archivo" *ngIf="archivoSeleccionado">
-    Arxiu seleccionat: {{ archivoSeleccionado.name }}
+  <p class="archivo" *ngIf="archivoSeleccionado()">
+    Arxiu seleccionat: {{ archivoSeleccionado()?.name }}
   </p>
 
-  <p class="mensaje" *ngIf="mensaje">
-    {{ mensaje }}
+  <p class="mensaje" *ngIf="mensaje()">
+    {{ mensaje() }}
   </p>
 
   <div class="acciones">
-    <button
-      type="button"
-      class="btn"
-      routerLink="/bdd"
-    >
+    <button type="button" class="btn" routerLink="/bdd">
       Cancel·lar
     </button>
 
     <button
       type="button"
       class="btn btn--importar"
-      [disabled]="!archivoSeleccionado || cargando"
+      [disabled]="!archivoSeleccionado() || cargando()"
       (click)="enviarArchivo()"
     >
-      {{ cargando ? 'Important...' : 'Importar' }}
+      {{ cargando() ? 'Important...' : 'Importar' }}
     </button>
   </div>
 </main>

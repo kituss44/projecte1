@@ -1,9 +1,9 @@
-
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenuHeader } from '../menu-header/menu-header';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-bdd-importar',
@@ -13,9 +13,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class BddImportar {
 
-  archivoSeleccionado: File | undefined = undefined;
-  cargando = false;
-  mensaje = '';
+  archivoSeleccionado = signal<File | undefined>(undefined);
+  cargando = signal(false);
+  mensaje = signal('');
 
   constructor(private http: HttpClient) {}
 
@@ -41,53 +41,47 @@ export class BddImportar {
   }
 
   seleccionarArchivo(archivo: File): void {
-    this.mensaje = '';
+    this.mensaje.set('');
 
     if (!/\.(xlsx|xls)$/i.test(archivo.name)) {
-      this.archivoSeleccionado = undefined;
-      this.mensaje = 'Selecciona un fitxer Excel (.xlsx o .xls).';
+      this.archivoSeleccionado.set(undefined);
+      this.mensaje.set('Selecciona un fitxer Excel (.xlsx o .xls).');
       return;
     }
 
-    this.archivoSeleccionado = archivo;
+    this.archivoSeleccionado.set(archivo);
   }
 
   enviarArchivo(): void {
-    const archivo = this.archivoSeleccionado;
+    const archivo = this.archivoSeleccionado();
 
-    if (archivo === undefined || this.cargando) {
+    if (archivo === undefined || this.cargando()) {
       return;
     }
 
     const formData = new FormData();
     formData.append('archivo', archivo, archivo.name);
 
-    this.cargando = true;
-    this.mensaje = '';
+    this.cargando.set(true);
+    this.mensaje.set('');
 
     this.http.post<{
       mensaje?: string;
       registrosInsertados?: number;
       error?: string;
-    }>(
-      'http://localhost:3000/api/importar-csv',
-      formData
-    ).subscribe({
-      next: (respuesta) => {
-        this.mensaje =
-          `${respuesta.mensaje}. Registres inserits: ` +
-          `${respuesta.registrosInsertados}`;
-
-        this.archivoSeleccionado = undefined;
-        this.cargando = false;
-      },
-      error: (error) => {
-        this.mensaje =
-          error.error?.error || 'Error en importar el CSV.';
-
-        this.cargando = false;
-        console.error(error);
-      }
-    });
+    }>('http://localhost:3000/api/importar-csv', formData)
+      .pipe(finalize(() => this.cargando.set(false)))
+      .subscribe({
+        next: (respuesta) => {
+          this.mensaje.set(
+            `${respuesta.mensaje}. Registres inserits: ${respuesta.registrosInsertados}`
+          );
+          this.archivoSeleccionado.set(undefined);
+        },
+        error: (error) => {
+          this.mensaje.set(error.error?.error || 'Error en importar el CSV.');
+          console.error(error);
+        }
+      });
   }
 }

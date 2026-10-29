@@ -48,3 +48,8 @@ h1 {
   transform: scale(1.02);
   border-color: black;
 }
+
+.btn-secundari {
+  width: 100%;
+  margin-top: 12px;
+}

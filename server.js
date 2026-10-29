@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'patata',
+  password: '1234qwer',
   database: 'cacaproject'
 });
 
@@ -351,5 +351,94 @@ app.put('/api/db/taules/:nom', async (req, res) => {
   }
 });
 
+async function requireAdmin(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Sessió no vàlida' });
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      'SELECT userCorreu, admin FROM `user` WHERE sessionToken = ?',
+      [token]
+    );
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Sessió no vàlida' });
+    }
+    if (!rows[0].admin) {
+      return res.status(403).json({ error: 'No tens permisos' });
+    }
+
+    req.user = rows[0];
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+}
+
+app.delete('/api/db/buidar', requireAdmin, async (req, res) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    await connection.query('DELETE FROM registrelavabo');
+    await connection.query('DELETE FROM alumne');
+
+    await connection.commit();
+
+    await connection.query('ALTER TABLE registrelavabo AUTO_INCREMENT = 1');
+    await connection.query('ALTER TABLE alumne AUTO_INCREMENT = 1');
+
+    res.json({ ok: true });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error(err);
+    res.status(500).json({ error: 'No s\'ha pogut eliminar la base de dades' });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+app.get('/api/usuaris/no-admin', requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT userCorreu, userNom, userCognom FROM `user` WHERE admin = 0 ORDER BY userCorreu'
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+app.delete('/api/usuaris/no-admin', requireAdmin, async (req, res) => {
+  try {
+    const [result] = await pool.execute('DELETE FROM `user` WHERE admin = 0');
+    res.json({ ok: true, eliminats: result.affectedRows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'No s\'han pogut eliminar els usuaris' });
+  }
+});
+
+app.delete('/api/usuaris/:correu', requireAdmin, async (req, res) => {
+  try {
+    const [result] = await pool.execute(
+      'DELETE FROM `user` WHERE userCorreu = ? AND admin = 0',
+      [req.params.correu]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Usuari no trobat o és administrador' });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'No s\'ha pogut eliminar l\'usuari' });
+  }
+});
 
 app.listen(3000, () => console.log('Servidor a http://localhost:3000'));

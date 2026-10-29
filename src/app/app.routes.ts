@@ -26,6 +26,7 @@ import { ConsultarVista } from './Components/consultar-vista/consultar-vista';
 import { authGuard } from './auth.guard';
 import { adminGuard } from './admin.guard';
 import { professorGuard } from './professor.guard';
+import { BddEliminarUsuaris } from './Components/bdd-eliminar-usuaris/bdd-eliminar-usuaris';
 
 
 export const routes: Routes = [
@@ -77,6 +78,7 @@ export const routes: Routes = [
           { path: 'bddimportar', component: BddImportar },
           { path: 'bddvisualitzar', component: BddVisualitzar },
           { path: 'bddeliminar', component: BddEliminar },
+          { path: 'bddeliminarusers', component: BddEliminarUsuaris}
         ]
       },
     ]

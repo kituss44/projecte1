@@ -1,0 +1,71 @@
+<app-menu-header/>
+
+<main class="panel">
+  @switch (mode()) {
+    @case ('inici') {
+      <h1>Eliminar usuaris no admin</h1>
+    }
+    @case ('confirmarTots') {
+      <h1>Estàs segur que vols eliminar tots els usuaris no admin?</h1>
+    }
+    @case ('cercar') {
+      <h1>Cerca l'usuari a eliminar</h1>
+    }
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+  @if (exit()) {
+    <p class="exit">{{ exit() }}</p>
+  }
+
+  @switch (mode()) {
+    @case ('inici') {
+      <div class="acciones">
+        <button type="button" class="btn" routerLink="/bddeliminar" [disabled]="carregant()">Cancelar</button>
+        <button type="button" class="btn" (click)="demanarConfirmacioTots()" [disabled]="carregant()">Eliminar tots</button>
+      </div>
+
+      <button type="button" class="btn btn-secundari" (click)="obrirCerca()" [disabled]="carregant()">
+        Buscar i eliminar un concret
+      </button>
+    }
+
+    @case ('confirmarTots') {
+      <div class="acciones">
+        <button type="button" class="btn" (click)="tornar()" [disabled]="carregant()">Cancelar</button>
+        <button type="button" class="btn" (click)="eliminarTots()" [disabled]="carregant()">
+          {{ carregant() ? 'Eliminant...' : 'Eliminar' }}
+        </button>
+      </div>
+    }
+
+    @case ('cercar') {
+      <input
+        type="text"
+        class="cercador"
+        placeholder="Correu de l'usuari"
+        [ngModel]="cerca()"
+        (ngModelChange)="cerca.set($event)"
+      />
+
+      <div class="llista">
+        @for (u of filtrats(); track u.userCorreu) {
+          <div class="fila">
+            <span class="correu">{{ u.userCorreu }}</span>
+            <button type="button" class="btn btn-petit" (click)="eliminarUn(u.userCorreu)" [disabled]="carregant()">
+              Eliminar
+            </button>
+          </div>
+        } @empty {
+          <p class="buit">{{ carregant() ? 'Carregant...' : 'Cap usuari trobat' }}</p>
+        }
+      </div>
+
+      <button type="button" class="btn btn-secundari" (click)="tornar()" [disabled]="carregant()">
+        Enrere
+      </button>
+    }
+  }
+</main>

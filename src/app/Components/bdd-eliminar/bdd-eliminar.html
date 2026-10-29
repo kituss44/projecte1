@@ -3,8 +3,18 @@
 <main class="panel">
   <h1>Estàs segur que vols eliminar tota la base de dades?</h1>
 
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
   <div class="acciones">
-    <button type="button" class="btn" routerLink="/bdd">Cancelar</button>
-    <button type="button" class="btn">Eliminar</button>
+    <button type="button" class="btn" routerLink="/bdd" [disabled]="carregant()">Cancelar</button>
+    <button type="button" class="btn" (click)="eliminar()" [disabled]="carregant()">
+      {{ carregant() ? 'Eliminant...' : 'Eliminar' }}
+    </button>
   </div>
+
+  <button type="button" class="btn btn-secundari" routerLink="/bddeliminarusers" [disabled]="carregant()">
+    Eliminar usuaris no admin
+  </button>
 </main>
