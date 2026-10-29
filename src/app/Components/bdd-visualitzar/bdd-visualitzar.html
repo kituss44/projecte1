@@ -6,9 +6,10 @@
            placeholder="Cercar..."
            [value]="cerca()"
            (input)="cerca.set($any($event.target).value)">
+    <div class="divTextPerFiltrar"><p class="textPerFiltrar">Filtrar per:</p></div>
     <select [value]="columnaCerca()"
             (change)="columnaCerca.set($any($event.target).value)">
-      <option value="">Totes les columnes</option>
+      <option value="">Sense filtres</option>
       @for (c of columnes(); track c) {
         <option [value]="c">{{ c }}</option>
       }

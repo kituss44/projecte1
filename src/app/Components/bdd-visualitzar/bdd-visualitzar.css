@@ -113,6 +113,7 @@ td input {
 
 .cerca {
   display: flex;
+  align-items: center;
   gap: .5rem;
   flex: 0 0 auto;
 }
@@ -126,8 +127,13 @@ td input {
   color: #1e3a5f;
   font: inherit;
   font-size: .85rem;
+}
+
+.cerca input{
   margin-left: 1rem;
 }
+
+
 
 .cerca input {
   width: 14rem;
@@ -153,4 +159,15 @@ td.buit {
   opacity: .7;
   text-align: right;
   margin-right: 1rem;
+}
+
+.textPerFiltrar {
+  padding-left: 20px;
+  margin: 0;
+  line-height: 1;
+}
+
+.divTextPerFiltrar {
+  display: flex;
+  align-items: center;
 }
