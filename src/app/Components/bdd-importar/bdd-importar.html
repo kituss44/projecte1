@@ -1,8 +1,53 @@
-
 <app-menu-header />
 
-<main class="panel">
-  <h1>Importar arxiu</h1>
+<main class="panel" (click)="cerrarMenu()">
+  <div class="panel__cabecera">
+    <h1>{{ opcionActual.titulo }}</h1>
+
+    <div class="selector">
+      <button
+        type="button"
+        class="selector__boton"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="menuAbierto"
+        [disabled]="cargando"
+        (click)="alternarMenu($event)"
+      >
+        <span>{{ opcionActual.etiqueta }}</span>
+        <svg
+          class="selector__flecha"
+          [class.selector__flecha--abierta]="menuAbierto"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M6 9l6 6 6-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <ul class="selector__lista" role="listbox" *ngIf="menuAbierto">
+        <li *ngFor="let opcion of opciones" role="presentation">
+          <button
+            type="button"
+            role="option"
+            class="selector__opcion"
+            [class.selector__opcion--activa]="opcion.tipo === tipoActual"
+            [attr.aria-selected]="opcion.tipo === tipoActual"
+            (click)="seleccionarTipo(opcion.tipo); $event.stopPropagation()"
+          >
+            <span class="selector__nombre">{{ opcion.etiqueta }}</span>
+            <span class="selector__descripcion">{{ opcion.descripcion }}</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <label
     class="dropzone"
@@ -23,7 +68,7 @@
       />
     </svg>
 
-    <span class="dropzone__titulo">Deixa aquí el teu arxiu Excel</span>
+    <span class="dropzone__titulo">{{ opcionActual.textoDropzone }}</span>
 
     <span class="dropzone__ayuda">
       o fes clic aquí per seleccionar-lo
@@ -32,31 +77,39 @@
     <input
       id="arxiu"
       type="file"
-      accept=".xlsx,.xls"
+      [accept]="opcionActual.accept"
       (change)="onFileSelected($event)"
     />
   </label>
 
-  <p class="archivo" *ngIf="archivoSeleccionado()">
-    Arxiu seleccionat: {{ archivoSeleccionado()?.name }}
+  <p class="columnas" *ngIf="opcionActual.ayudaColumnas">
+    {{ opcionActual.ayudaColumnas }}
   </p>
 
-  <p class="mensaje" *ngIf="mensaje()">
-    {{ mensaje() }}
+  <p class="archivo" *ngIf="archivoSeleccionado">
+    Arxiu seleccionat: {{ archivoSeleccionado.name }}
+  </p>
+
+  <p class="mensaje" *ngIf="mensaje">
+    {{ mensaje }}
   </p>
 
   <div class="acciones">
-    <button type="button" class="btn" routerLink="/bdd">
+    <button
+      type="button"
+      class="btn"
+      routerLink="/bdd"
+    >
       Cancel·lar
     </button>
 
     <button
       type="button"
       class="btn btn--importar"
-      [disabled]="!archivoSeleccionado() || cargando()"
+      [disabled]="!archivoSeleccionado || cargando"
       (click)="enviarArchivo()"
     >
-      {{ cargando() ? 'Important...' : 'Importar' }}
+      {{ cargando ? 'Important...' : 'Importar' }}
     </button>
   </div>
 </main>
