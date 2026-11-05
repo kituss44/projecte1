@@ -19,6 +19,7 @@ interface OpcionImportacion {
   extensiones: RegExp;
   mensajeFormato: string;
   disponible: boolean;
+  multiple?: boolean;
 }
 
 @Component({
@@ -48,13 +49,14 @@ export class BddImportar {
       etiqueta: 'Imatges d\'alumnes',
       descripcion: 'Fotografies dels alumnes',
       titulo: 'Importar imatges d\'alumnes',
-      textoDropzone: 'Deixa aquí el teu arxiu .jpg',
+      textoDropzone: 'Deixa aquí els teus arxius .jpg',
       ayudaColumnas:
-        'Pots introduïr un o multiples .jpg',
-      accept: '.zip',
-      extensiones: /\.zip$/i,
-      mensajeFormato: 'Selecciona un fitxer .zip amb les imatges.',
-      disponible: false
+        'Tria el grup i puja les fotos .jpg: la primera anirà al primer alumne del grup (ordre alfabètic), la segona al segon, etc. Les fotos que sobrin s\'ignoren.',
+      accept: '.jpg,.jpeg',
+      extensiones: /\.jpe?g$/i,
+      mensajeFormato: 'Selecciona només fitxers .jpg.',
+      multiple: true,
+      disponible: true
     },
     {
       tipo: 'profesores',
@@ -88,6 +90,9 @@ export class BddImportar {
   menuAbierto = false;
 
   archivoSeleccionado: File | undefined = undefined;
+  archivosImagenes: File[] = [];
+  grupos: string[] = [];
+  grupSeleccionat = '';
   cargando = false;
   mensaje = '';
 
@@ -98,6 +103,18 @@ export class BddImportar {
 
   get opcionActual(): OpcionImportacion {
     return this.opciones.find(o => o.tipo === this.tipoActual) ?? this.opciones[0];
+  }
+
+  get puedeEnviar(): boolean {
+    if (this.cargando) {
+      return false;
+    }
+
+    if (this.tipoActual === 'imagenes') {
+      return this.archivosImagenes.length > 0 && this.grupSeleccionat !== '';
+    }
+
+    return this.archivoSeleccionado !== undefined;
   }
 
   // ---------- Selector de tipo ----------
@@ -118,31 +135,78 @@ export class BddImportar {
 
     this.tipoActual = tipo;
     this.archivoSeleccionado = undefined;
+    this.archivosImagenes = [];
     this.mensaje = '';
     this.menuAbierto = false;
+
+    if (tipo === 'imagenes') {
+      this.cargarGrupos();
+    }
+  }
+
+  // ---------- Grups matriculats ----------
+
+  private cargarGrupos(): void {
+    this.http.get<string[]>('http://localhost:3000/api/alumnes/grups').subscribe({
+      next: (grupos) => {
+        this.grupos = grupos;
+        if (!grupos.includes(this.grupSeleccionat)) {
+          this.grupSeleccionat = '';
+        }
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.mensaje = 'No s\'han pogut carregar els grups.';
+        console.error(error);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onGrupChange(event: Event): void {
+    this.grupSeleccionat = (event.target as HTMLSelectElement).value;
   }
 
   // ---------- Selección de archivo ----------
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
-
-    const archivo = event.dataTransfer?.files[0];
-
-    if (archivo) {
-      this.seleccionarArchivo(archivo);
-    }
+    this.procesarArchivos(Array.from(event.dataTransfer?.files ?? []));
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const archivo = input.files?.[0];
+    this.procesarArchivos(Array.from(input.files ?? []));
+    input.value = '';
+  }
 
-    if (archivo) {
-      this.seleccionarArchivo(archivo);
+  private procesarArchivos(archivos: File[]): void {
+    if (archivos.length === 0) {
+      return;
     }
 
-    input.value = '';
+    if (!this.opcionActual.multiple) {
+      this.seleccionarArchivo(archivos[0]);
+      return;
+    }
+
+    this.mensaje = '';
+    const validos = archivos.filter(a => this.opcionActual.extensiones.test(a.name));
+
+    if (validos.length === 0) {
+      this.archivosImagenes = [];
+      this.mensaje = this.opcionActual.mensajeFormato;
+      return;
+    }
+
+    if (validos.length < archivos.length) {
+      this.mensaje =
+        `S'han descartat ${archivos.length - validos.length} fitxers que no són .jpg.`;
+    }
+
+    this.archivosImagenes = validos.sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+    );
   }
 
   seleccionarArchivo(archivo: File): void {
@@ -160,19 +224,22 @@ export class BddImportar {
   // ---------- Envío ----------
 
   enviarArchivo(): void {
-    if (this.archivoSeleccionado === undefined || this.cargando) {
+    if (!this.puedeEnviar) {
       return;
     }
 
     switch (this.tipoActual) {
       case 'alumnos':
-        this.importarAlumnos(this.archivoSeleccionado);
+        this.importarAlumnos(this.archivoSeleccionado!);
+        break;
+      case 'imagenes':
+        this.importarImagenes();
         break;
       case 'profesores':
-        this.importarProfesores(this.archivoSeleccionado);
+        this.importarProfesores(this.archivoSeleccionado!);
         break;
       case 'usuarios':
-        this.importarUsuarios(this.archivoSeleccionado);
+        this.importarUsuarios(this.archivoSeleccionado!);
         break;
       default:
         break;
@@ -217,6 +284,51 @@ export class BddImportar {
     });
   }
 
+  private importarImagenes(): void {
+    const formData = new FormData();
+    formData.append('grup', this.grupSeleccionat);
+    this.archivosImagenes.forEach(f => formData.append('imatges', f, f.name));
+
+    this.cargando = true;
+    this.mensaje = '';
+
+    this.http.post<{
+      mensaje?: string;
+      assignades?: number;
+      ignorades?: number;
+      alumnesSenseFoto?: number;
+    }>(
+      'http://localhost:3000/api/importar-imatges',
+      formData
+    ).pipe(
+      timeout(120000),
+      finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (r) => {
+        this.mensaje = `${r.mensaje}. Imatges assignades: ${r.assignades}`;
+
+        if (r.ignorades) {
+          this.mensaje += `, ${r.ignorades} sobrants ignorades`;
+        }
+        if (r.alumnesSenseFoto) {
+          this.mensaje += `, ${r.alumnesSenseFoto} alumnes sense foto`;
+        }
+
+        this.mensaje += '.';
+        this.archivosImagenes = [];
+      },
+      error: (error) => {
+        this.mensaje = error instanceof TimeoutError
+          ? 'El servidor no ha respost a temps.'
+          : error.error?.error || 'Error en importar les imatges.';
+
+        console.error(error);
+      }
+    });
+  }
 
   private importarProfesores(archivo: File): void {
     const formData = new FormData();

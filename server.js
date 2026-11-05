@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const multer = require('multer');
 const XLSX = require('xlsx');
+const fs = require('fs/promises');
+const path = require('path');
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:4200' }));
@@ -14,7 +16,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'patata',
+  password: '1234qwer',
   database: 'cacaproject'
 });
 
@@ -585,6 +587,128 @@ app.get('/api/alumnes/sortides', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const ALUMNES_DIR = path.join(UPLOADS_DIR, 'alumnes');
+
+app.use('/uploads', express.static(UPLOADS_DIR));
+
+app.get('/api/alumnes/grups', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT DISTINCT codiGrupMatriculat
+       FROM alumne
+       WHERE codiGrupMatriculat IS NOT NULL
+       ORDER BY codiGrupMatriculat`
+    );
+    res.json(rows.map(r => r.codiGrupMatriculat));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+const uploadImatges = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 200 },
+  fileFilter: (req, file, cb) => {
+    if (!/\.jpe?g$/i.test(file.originalname)) {
+      return cb(new Error('Només es permeten imatges .jpg'));
+    }
+    cb(null, true);
+  }
+});
+
+function pujarImatges(req, res, next) {
+  uploadImatges.array('imatges')(req, res, err => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}
+
+app.post('/api/importar-imatges', pujarImatges, async (req, res) => {
+  let connection;
+
+  try {
+    const grup = String(req.body.grup || '').trim();
+
+    if (!grup) {
+      return res.status(400).json({ error: 'Cal indicar el grup matriculat' });
+    }
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No s’ha rebut cap imatge' });
+    }
+
+    const [alumnes] = await pool.execute(
+      `SELECT idIeduca
+       FROM alumne
+       WHERE codiGrupMatriculat = ?
+       ORDER BY nom COLLATE utf8mb4_unicode_ci,
+                cognom1 COLLATE utf8mb4_unicode_ci,
+                cognom2 COLLATE utf8mb4_unicode_ci,
+                idIeduca`,
+      [grup]
+    );
+
+    if (alumnes.length === 0) {
+      return res.status(404).json({ error: 'No hi ha cap alumne en aquest grup' });
+    }
+
+    const fitxers = [...req.files].sort((a, b) =>
+      a.originalname.localeCompare(b.originalname, undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      })
+    );
+
+    const total = Math.min(fitxers.length, alumnes.length);
+
+    await fs.mkdir(ALUMNES_DIR, { recursive: true });
+
+    const assignacions = [];
+    for (let i = 0; i < total; i++) {
+      const idSegur = String(alumnes[i].idIeduca).replace(/[^\w-]/g, '_');
+      const nomFitxer = `${idSegur}.jpg`;
+
+      await fs.writeFile(path.join(ALUMNES_DIR, nomFitxer), fitxers[i].buffer);
+      assignacions.push([`/uploads/alumnes/${nomFitxer}`, alumnes[i].idIeduca]);
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    for (const [url, idIeduca] of assignacions) {
+      await connection.execute(
+        'UPDATE alumne SET urlImatge = ? WHERE idIeduca = ?',
+        [url, idIeduca]
+      );
+    }
+
+    await connection.commit();
+
+    res.status(201).json({
+      mensaje: 'Importació completada correctament',
+      assignades: total,
+      ignorades: fitxers.length - total,
+      alumnesSenseFoto: alumnes.length - total
+    });
+
+  } catch (error) {
+    if (connection) await connection.rollback();
+
+    console.error('Error important imatges:', error);
+
+    res.status(500).json({
+      error: 'No s’han pogut importar les imatges',
+      detall: error.sqlMessage || error.message
+    });
+
+  } finally {
+    if (connection) connection.release();
   }
 });
 

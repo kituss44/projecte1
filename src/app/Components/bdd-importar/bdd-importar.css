@@ -121,6 +121,69 @@ h1 {
   opacity: 0.8;
 }
 
+/* ---------- Selector de grup matriculat ---------- */
+
+.grup {
+  margin-bottom: 18px;
+}
+
+.grup__etiqueta {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #2C4A63;
+}
+
+.grup__campo {
+  position: relative;
+}
+
+.grup__select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 40px 9px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #FFFFFF;
+  background: #2C4A63;
+  border: 1px solid #2C4A63;
+  border-radius: 10px;
+  cursor: pointer;
+  appearance: none;
+  transition: background 0.2s;
+}
+
+.grup__select:hover {
+  background: #3B6285;
+}
+
+.grup__select:focus-visible {
+  outline: 2px solid #6BAE9E;
+  outline-offset: 2px;
+}
+
+.grup__select option {
+  color: #2C4A63;
+  background: #F6FBFF;
+}
+
+.grup__flecha {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 16px;
+  height: 16px;
+  color: #FFFFFF;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.2s;
+}
+
+.grup__select:focus ~ .grup__flecha {
+  transform: translateY(-50%) rotate(180deg);
+}
+
 /* ---------- Dropzone ---------- */
 
 .dropzone {

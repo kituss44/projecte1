@@ -49,6 +49,33 @@
     </div>
   </div>
 
+  <div class="grup" *ngIf="tipoActual === 'imagenes'">
+    <label class="grup__etiqueta" for="grup">Grup matriculat</label>
+
+    <div class="grup__campo">
+      <select
+        id="grup"
+        class="grup__select"
+        [value]="grupSeleccionat"
+        (change)="onGrupChange($event)"
+      >
+        <option value="">Selecciona un grup</option>
+        <option *ngFor="let g of grupos" [value]="g">{{ g }}</option>
+      </select>
+
+      <svg class="grup__flecha" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M6 9l6 6 6-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+  </div>
+
   <label
     class="dropzone"
     for="arxiu"
@@ -78,6 +105,7 @@
       id="arxiu"
       type="file"
       [accept]="opcionActual.accept"
+      [multiple]="!!opcionActual.multiple"
       (change)="onFileSelected($event)"
     />
   </label>
@@ -88,6 +116,10 @@
 
   <p class="archivo" *ngIf="archivoSeleccionado">
     Arxiu seleccionat: {{ archivoSeleccionado.name }}
+  </p>
+
+  <p class="archivo" *ngIf="archivosImagenes.length > 0">
+    {{ archivosImagenes.length }} imatges seleccionades
   </p>
 
   <p class="mensaje" *ngIf="mensaje">
@@ -106,7 +138,7 @@
     <button
       type="button"
       class="btn btn--importar"
-      [disabled]="!archivoSeleccionado || cargando"
+      [disabled]="!puedeEnviar"
       (click)="enviarArchivo()"
     >
       {{ cargando ? 'Important...' : 'Importar' }}
