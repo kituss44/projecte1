@@ -525,4 +525,67 @@ app.delete('/api/usuaris/:correu', requireAdmin, async (req, res) => {
   }
 });
 
+app.get('/api/alumnes/sortides', async (req, res) => {
+  const idAlumne = String(req.query.idAlumne ?? '').trim();
+  const idIeduca = String(req.query.idIeduca ?? '').trim();
+
+  if (!idAlumne && !idIeduca) {
+    return res.status(400).json({ error: 'Falta l’identificador de l’alumne' });
+  }
+
+  if (idAlumne && !/^\d+$/.test(idAlumne)) {
+    return res.status(400).json({ error: 'L’ID alumne ha de ser un número' });
+  }
+
+  try {
+    // Si vienen los dos, manda el ID alumne
+    const [alumnes] = idAlumne
+      ? await pool.execute(
+        `SELECT idAlumne, idIeduca, nom, cognom1, cognom2, codiGrupMatriculat
+           FROM alumne WHERE idAlumne = ?`,
+        [idAlumne]
+      )
+      : await pool.execute(
+        `SELECT idAlumne, idIeduca, nom, cognom1, cognom2, codiGrupMatriculat
+           FROM alumne WHERE idIeduca = ?`,
+        [idIeduca]
+      );
+
+    if (alumnes.length === 0) {
+      return res.status(404).json({ error: 'Alumne no trobat' });
+    }
+
+    const alumne = alumnes[0];
+
+    const [sortides] = await pool.execute(
+      `SELECT dataEntrada,
+              dataSortida,
+              TIMESTAMPDIFF(MINUTE, dataEntrada, dataSortida) AS durada,
+              professor
+       FROM registrelavabo
+       WHERE idAlumne = ?
+       ORDER BY dataEntrada DESC`,
+      [alumne.idAlumne]
+    );
+
+    const durades = sortides
+      .map(s => s.durada)
+      .filter(d => d !== null);
+
+    const tempsMitja = durades.length
+      ? Math.round(durades.reduce((a, b) => a + b, 0) / durades.length)
+      : null;
+
+    res.json({
+      alumne,
+      sortides,
+      tempsMitja,
+      total: sortides.length
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 app.listen(3000, () => console.log('Servidor a http://localhost:3000'));

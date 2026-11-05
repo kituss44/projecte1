@@ -1,20 +1,28 @@
 <app-menu-header/>
 
-<main class="panel">
-  <h1>Estàs segur que vols eliminar tota la base de dades?</h1>
+<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 32px); max-width: 460px; display: flex; flex-direction: column; gap: 16px;">
 
-  @if (error()) {
-    <p class="error">{{ error() }}</p>
-  }
+  <main class="panel" style="position: static; transform: none; width: 100%;">
+    <h1>Estàs segur que vols eliminar tota la base de dades?</h1>
 
-  <div class="acciones">
-    <button type="button" class="btn" routerLink="/bdd" [disabled]="carregant()">Cancelar</button>
-    <button type="button" class="btn" (click)="eliminar()" [disabled]="carregant()">
-      {{ carregant() ? 'Eliminant...' : 'Eliminar' }}
-    </button>
-  </div>
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
 
-  <button type="button" class="btn btn-secundari" routerLink="/bddeliminarusers" [disabled]="carregant()">
-    Eliminar usuaris no admin
-  </button>
-</main>
+    <div class="acciones">
+      <button type="button" class="btn" routerLink="/bdd" [disabled]="carregant()">Cancelar</button>
+      <button type="button" class="btn" (click)="eliminar()" [disabled]="carregant()">
+        {{ carregant() ? 'Eliminant...' : 'Eliminar' }}
+      </button>
+    </div>
+  </main>
+
+  <section class="panel" style="position: static; transform: none; width: 100%; padding: 16px 28px;">
+    <div class="acciones">
+      <button type="button" class="btn" routerLink="/bddeliminarusers" [disabled]="carregant()">
+        Eliminar usuaris no admin
+      </button>
+    </div>
+  </section>
+
+</div>

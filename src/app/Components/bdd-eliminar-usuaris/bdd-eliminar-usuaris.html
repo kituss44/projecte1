@@ -23,7 +23,7 @@
   @switch (mode()) {
     @case ('inici') {
       <div class="acciones">
-        <button type="button" class="btn" routerLink="/bddeliminar" [disabled]="carregant()">Cancelar</button>
+        <button type="button" class="btn" routerLink="/bdd" [disabled]="carregant()">Cancelar</button>
         <button type="button" class="btn" (click)="demanarConfirmacioTots()" [disabled]="carregant()">Eliminar tots</button>
       </div>
 

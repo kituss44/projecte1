@@ -7,20 +7,38 @@
     <section class="panel">
       <div class="campos">
         <h2 class="titulo">Buscar per ID</h2>
-        <input type="text" class="campo campo-grande" placeholder="Id alumne" aria-label="Id alumne">
+        <input
+          #idAlumne
+          type="text"
+          class="campo campo-grande"
+          placeholder="Id alumne"
+          aria-label="Id alumne"
+          (keyup.enter)="buscarPorIdAlumno(idAlumne.value)"
+        >
       </div>
 
-      <button type="button" class="boton" routerLink="/consultarvista">Buscar</button>
+      <button type="button" class="boton" (click)="buscarPorIdAlumno(idAlumne.value)">
+        Buscar
+      </button>
     </section>
 
     <!-- Opción 2: buscar por Id ieduca -->
     <section class="panel">
       <div class="campos">
         <h2 class="titulo">Buscar per Id ieduca</h2>
-        <input type="text" class="campo campo-grande" placeholder="Id ieduca" aria-label="Id ieduca">
+        <input
+          #idIeduca
+          type="text"
+          class="campo campo-grande"
+          placeholder="Id ieduca"
+          aria-label="Id ieduca"
+          (keyup.enter)="buscarPorIdIeduca(idIeduca.value)"
+        >
       </div>
 
-      <button type="button" class="boton" routerLink="/consultarvista">Buscar</button>
+      <button type="button" class="boton" (click)="buscarPorIdIeduca(idIeduca.value)">
+        Buscar
+      </button>
     </section>
 
   </main>

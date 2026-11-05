@@ -4,95 +4,68 @@
 
   <div class="llista">
 
+    @if (cargando()) {
+      <p class="missatge">Carregant...</p>
+    } @else if (error()) {
+      <p class="missatge">{{ error() }}</p>
+    } @else if (salidas().length === 0) {
+      <p class="missatge">Aquest alumne no té cap sortida registrada.</p>
+    }
 
-    <div class="sortida-card">
-      <div class="capcalera">
-        <div class="camp alumne">
-          <p><strong>Laia</strong> Ferrer Vidal</p>
-          <p class="grup">Grup: 2n DAW</p>
+    @for (sortida of salidas(); track $index) {
+      <div class="sortida-card">
+        <div class="capcalera">
+          <div class="camp alumne">
+            <p><strong>{{ alumno()?.nom }}</strong> {{ alumno()?.cognom1 }} {{ alumno()?.cognom2 }}</p>
+            <p class="grup">Grup: {{ alumno()?.codiGrupMatriculat }}</p>
+          </div>
+          <div class="camp professor">
+            <p class="etiqueta">Professor</p>
+            <p>{{ sortida.professor || '—' }}</p>
+          </div>
         </div>
-        <div class="camp professor">
-          <p class="etiqueta">Professor</p>
-          <p>Marta Puig</p>
-        </div>
-      </div>
 
-      <div class="dades">
-        <p class="camp"><span class="etiqueta">Data entrada</span>12/03/2024 10:05</p>
-        <p class="camp"><span class="etiqueta">Durada</span>8 min</p>
-        <p class="camp"><span class="etiqueta">Data sortida</span>12/03/2024 10:13</p>
-      </div>
-    </div>
-
-
-    <div class="sortida-card">
-      <div class="capcalera">
-        <div class="camp alumne">
-          <p><strong>Laia</strong> Ferrer Vidal</p>
-          <p class="grup">Grup: 2n DAW</p>
-        </div>
-        <div class="camp professor">
-          <p class="etiqueta">Professor</p>
-          <p>Marta Puig</p>
-        </div>
-      </div>
-
-      <div class="dades">
-        <p class="camp"><span class="etiqueta">Data entrada</span>12/03/2024 10:05</p>
-        <p class="camp"><span class="etiqueta">Durada</span>8 min</p>
-        <p class="camp"><span class="etiqueta">Data sortida</span>12/03/2024 10:13</p>
-      </div>
-    </div>
-
-
-    <div class="sortida-card">
-      <div class="capcalera">
-        <div class="camp alumne">
-          <p><strong>Laia</strong> Ferrer Vidal</p>
-          <p class="grup">Grup: 2n DAW</p>
-        </div>
-        <div class="camp professor">
-          <p class="etiqueta">Professor</p>
-          <p>Marta Puig</p>
+        <div class="dades">
+          <p class="camp">
+            <span class="etiqueta">Data entrada</span>
+            {{ sortida.dataEntrada | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p class="camp">
+            <span class="etiqueta">Durada</span>
+            @if (sortida.durada !== null) {
+              {{ sortida.durada }} min
+            } @else {
+              En curs
+            }
+          </p>
+          <p class="camp">
+            <span class="etiqueta">Data sortida</span>
+            @if (sortida.dataSortida) {
+              {{ sortida.dataSortida | date:'dd/MM/yyyy HH:mm' }}
+            } @else {
+              —
+            }
+          </p>
         </div>
       </div>
+    }
 
-      <div class="dades">
-        <p class="camp"><span class="etiqueta">Data entrada</span>12/03/2024 10:05</p>
-        <p class="camp"><span class="etiqueta">Durada</span>8 min</p>
-        <p class="camp"><span class="etiqueta">Data sortida</span>12/03/2024 10:13</p>
-      </div>
-    </div>
-
-
-    <div class="sortida-card">
-      <div class="capcalera">
-        <div class="camp alumne">
-          <p><strong>Laia</strong> Ferrer Vidal</p>
-          <p class="grup">Grup: 2n DAW</p>
-        </div>
-        <div class="camp professor">
-          <p class="etiqueta">Professor</p>
-          <p>Marta Puig</p>
-        </div>
-      </div>
-
-      <div class="dades">
-        <p class="camp"><span class="etiqueta">Data entrada</span>12/03/2024 10:05</p>
-        <p class="camp"><span class="etiqueta">Durada</span>8 min</p>
-        <p class="camp"><span class="etiqueta">Data sortida</span>12/03/2024 10:13</p>
-      </div>
-    </div>
   </div>
 
   <aside class="panells">
     <div class="panell">
       <p class="titol">Temps mitjà de sortides</p>
-      <p class="valor">7 min</p>
+      <p class="valor">
+        @if (tiempoMedio() !== null) {
+          {{ tiempoMedio() }} min
+        } @else {
+          —
+        }
+      </p>
     </div>
     <div class="panell">
-      <p class="titol">Alumnes amb més sortides</p>
-      <p class="valor">Laia Ferrer</p>
+      <p class="titol">Total de sortides</p>
+      <p class="valor">{{ total() }}</p>
     </div>
   </aside>
 
