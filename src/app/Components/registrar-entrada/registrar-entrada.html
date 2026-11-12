@@ -5,13 +5,23 @@
     <section class="panel">
 
       <div class="campos">
-        <input type="text" class="campo" placeholder="Id alumne (Numero)" aria-label="Id alumne">
-        <input type="text" class="campo" placeholder="Professor que l'ha deixat sortir" aria-label="Professor">
+        <input type="text" class="campo" placeholder="Id alumne (Numero)" aria-label="Id alumne"
+               [value]="idAlumne()" (input)="canviId($any($event.target).value)"
+               (keyup.enter)="!alumneTrobat() && buscar()">
+        <input type="text" class="campo" placeholder="Professor que l'ha deixat sortir" aria-label="Professor"
+               [value]="professor()" (input)="professor.set($any($event.target).value)">
       </div>
 
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+
       <div class="acciones">
-        <button type="button" class="boton">Buscar alumne</button>
-        <button type="button" class="boton">Registrar</button>
+        @if (alumneTrobat()) {
+          <button type="button" class="boton" (click)="registrar()">Registrar</button>
+        } @else {
+          <button type="button" class="boton" (click)="buscar()">Buscar alumne</button>
+        }
         <button type="button" class="boton" routerLink="/inserirManualment">Buscar manualment</button>
       </div>
 
@@ -19,5 +29,5 @@
   </main>
 </div>
 
-<app-foto-alumne/>
+<app-foto-alumne [alumne]="alumneTrobat()"/>
 <app-llistat-alumnes-lavabo/>

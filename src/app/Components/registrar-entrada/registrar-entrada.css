@@ -96,3 +96,5 @@
     min-height: 60vh;
   }
 }
+
+.error { color: #c0392b; }

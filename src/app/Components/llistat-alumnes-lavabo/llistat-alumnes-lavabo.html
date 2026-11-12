@@ -2,6 +2,10 @@
   <section class="lista">
     <h1>Alumnes en el lavabo</h1>
 
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
     <table>
       <thead>
       <tr>
@@ -12,24 +16,22 @@
       </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>Marc Romaguera </td>
-        <td>10:05</td>
-        <td>2 min</td>
-        <td><span class="punto normal"></span></td>
-      </tr>
-      <tr>
-        <td>Laura Pons</td>
-        <td>10:12</td>
-        <td>5 min</td>
-        <td><span class="punto conflictivo"></span></td>
-      </tr>
-      <tr>
-        <td>Pau Serra</td>
-        <td>10:20</td>
-        <td>1 min</td>
-        <td><span class="punto normal"></span></td>
-      </tr>
+        @for (e of alLavabo(); track e.alumne.idAlumne) {
+          <tr>
+            <td>
+              <button type="button" class="nom-alumne" (click)="sortir(e)" title="Clic quan torni del lavabo">
+                {{ e.alumne.nom }} {{ e.alumne.cognom1 }} {{ e.alumne.cognom2 }}
+              </button>
+            </td>
+            <td>{{ e.dataEntrada | date:'HH:mm' }}</td>
+            <td>{{ minutsFora(e) }} min</td>
+            <td>
+              <span class="punto" [class.conflictivo]="e.alumne.conflictiu" [class.normal]="!e.alumne.conflictiu"></span>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4">No hi ha cap alumne al lavabo</td></tr>
+        }
       </tbody>
     </table>
   </section>

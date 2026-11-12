@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: '1234qwer',
+  password: 'patata',
   database: 'cacaproject'
 });
 
@@ -333,7 +333,7 @@ app.post('/api/importar-professors', pujarArxiu, async (req, res) => {
   }
 });
 
-        // VISUALITZAR BASES DE DADES
+// VISUALITZAR BASES DE DADES
 
 async function llistarTaules() {
   const [rows] = await pool.query('SHOW TABLES');
@@ -542,12 +542,12 @@ app.get('/api/alumnes/sortides', async (req, res) => {
     const [alumnes] = idAlumne
       ? await pool.execute(
         `SELECT idAlumne, idIeduca, nom, cognom1, cognom2, codiGrupMatriculat
-           FROM alumne WHERE idAlumne = ?`,
+         FROM alumne WHERE idAlumne = ?`,
         [idAlumne]
       )
       : await pool.execute(
         `SELECT idAlumne, idIeduca, nom, cognom1, cognom2, codiGrupMatriculat
-           FROM alumne WHERE idIeduca = ?`,
+         FROM alumne WHERE idIeduca = ?`,
         [idIeduca]
       );
 
@@ -726,7 +726,7 @@ app.get('/api/alumnes/sortides-per-data', async (req, res) => {
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-       JOIN alumne a ON a.idAlumne = r.idAlumne
+              JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE r.dataEntrada >= ?
          AND r.dataEntrada < DATE_ADD(?, INTERVAL 1 DAY)
        ORDER BY r.dataEntrada`,
@@ -770,7 +770,7 @@ app.get('/api/alumnes/sortides-per-grup', async (req, res) => {
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-       JOIN alumne a ON a.idAlumne = r.idAlumne
+              JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE a.codiGrupMatriculat = ?
        ORDER BY r.dataEntrada DESC`,
       [grup]
@@ -807,7 +807,7 @@ app.get('/api/alumnes/sortides-per-professor', async (req, res) => {
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-       JOIN alumne a ON a.idAlumne = r.idAlumne
+              JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE r.professor LIKE ?
        ORDER BY r.dataEntrada DESC`,
       [patro]
@@ -853,7 +853,7 @@ app.get('/api/alumnes/sortides-per-interval', async (req, res) => {
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-       JOIN alumne a ON a.idAlumne = r.idAlumne
+              JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE r.dataEntrada >= ?
          AND r.dataEntrada < DATE_ADD(?, INTERVAL 1 DAY)
        ORDER BY r.dataEntrada DESC`,
@@ -869,6 +869,85 @@ app.get('/api/alumnes/sortides-per-interval', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+
+// ===== LAVABO =====
+
+// Busca un alumne pel seu idAlumne (per mostrar la foto)
+app.get('/api/lavabo/alumne/:idAlumne', async (req, res) => {
+  const idAlumne = String(req.params.idAlumne).trim();
+
+  if (!/^\d+$/.test(idAlumne)) {
+    return res.status(400).json({ error: 'L’ID alumne ha de ser un número' });
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT idAlumne, idIeduca, nom, cognom1, cognom2,
+              codiGrupMatriculat, urlImatge, conflictiu
+       FROM alumne WHERE idAlumne = ?`,
+      [idAlumne]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Alumne no trobat' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Guarda el registre complet quan l'alumne torna del lavabo
+app.post('/api/lavabo/registre', async (req, res) => {
+  const { idAlumne, professor, dataEntrada, dataSortida } = req.body;
+
+  const formatDataHora = s => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s);
+
+  if (!/^\d+$/.test(String(idAlumne ?? ''))) {
+    return res.status(400).json({ error: 'ID alumne no vàlid' });
+  }
+  if (!professor || !String(professor).trim()) {
+    return res.status(400).json({ error: 'Falta el professor' });
+  }
+  if (!formatDataHora(dataEntrada) || !formatDataHora(dataSortida)) {
+    return res.status(400).json({ error: 'Format de data no vàlid' });
+  }
+
+  try {
+    // Les dades de l'alumne es llegeixen de la BD, no es fia del client
+    const [alumnes] = await pool.execute(
+      `SELECT idAlumne, idIeduca, nom, cognom1, cognom2, codiGrupMatriculat
+       FROM alumne WHERE idAlumne = ?`,
+      [idAlumne]
+    );
+
+    if (alumnes.length === 0) {
+      return res.status(404).json({ error: 'Alumne no trobat' });
+    }
+    const a = alumnes[0];
+
+    await pool.execute(
+      `INSERT INTO registrelavabo
+       (nomalumn, cognomalumn1, cognomalumn2, professor,
+        dataEntrada, dataSortida, grupMatriculat, idAlumne, idIeduca)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        a.nom, a.cognom1, a.cognom2, String(professor).trim(),
+        dataEntrada, dataSortida, a.codiGrupMatriculat, a.idAlumne, a.idIeduca
+      ]
+    );
+
+    res.status(201).json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: 'No s’ha pogut guardar el registre',
+      detall: err.sqlMessage || err.message
+    });
   }
 });
 

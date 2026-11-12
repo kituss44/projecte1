@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { Alumne } from '../llistat-alumnes-lavabo/llistat-alumnes-lavabo';
 
 @Component({
   imports: [],
@@ -6,4 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './foto-alumne.css',
   templateUrl: './foto-alumne.html',
 })
-export class FotoAlumne {}
+export class FotoAlumne {
+  alumne = input<Alumne | null>(null);
+  api = 'http://localhost:3000';
+}
