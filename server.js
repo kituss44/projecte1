@@ -952,7 +952,7 @@ app.post('/api/lavabo/registre', async (req, res) => {
 });
 
 
-// ---------- CREAR / MODIFICAR ALUMNE ----------
+// ---------- CREAR ALUMNE (imatge opcional) ----------
 
 const aNullAl = v => {
   const t = String(v ?? '').trim();
@@ -976,17 +976,37 @@ function validarAlumne(body) {
     return { error: 'Cap camp pot superar els 45 caràcters' };
   }
 
+  const conflictiu = body.conflictiu === true || body.conflictiu === 'true';
+
   return {
-    dades: {
-      idIeduca, nom, cognom1, cognom2, codiGrupMatriculat,
-      conflictiu: body.conflictiu ? 1 : 0
-    }
+    dades: { idIeduca, nom, cognom1, cognom2, codiGrupMatriculat, conflictiu: conflictiu ? 1 : 0 }
   };
 }
 
-app.post('/api/alumnes', async (req, res) => {
+const uploadImatgeAlumne = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    if (!/\.jpe?g$/i.test(file.originalname)) {
+      return cb(new Error('Només es permeten imatges .jpg'));
+    }
+    cb(null, true);
+  }
+});
+
+function pujarImatgeAlumne(req, res, next) {
+  uploadImatgeAlumne.single('imatge')(req, res, err => {
+    if (err) return res.status(400).json({ error: err.message });
+    next();
+  });
+}
+
+app.post('/api/alumnes', pujarImatgeAlumne, async (req, res) => {
   const { dades, error } = validarAlumne(req.body);
   if (error) return res.status(400).json({ error });
+
+  let connection;
+  let rutaFitxer = null;
 
   try {
     const [dup] = await pool.execute(
@@ -997,21 +1017,47 @@ app.post('/api/alumnes', async (req, res) => {
       return res.status(409).json({ error: 'Ja existeix un alumne amb aquest id ieduca' });
     }
 
-    const [result] = await pool.execute(
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [result] = await connection.execute(
       `INSERT INTO alumne (idIeduca, nom, cognom1, cognom2, codiGrupMatriculat, conflictiu)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [dades.idIeduca, dades.nom, dades.cognom1, dades.cognom2,
         dades.codiGrupMatriculat, dades.conflictiu]
     );
 
+    let urlImatge = null;
+    if (req.file) {
+      const idSegur = String(dades.idIeduca).replace(/[^\w-]/g, '_');
+      const nomFitxer = `${idSegur}.jpg`;
+      rutaFitxer = path.join(ALUMNES_DIR, nomFitxer);
+
+      await fs.mkdir(ALUMNES_DIR, { recursive: true });
+      await fs.writeFile(rutaFitxer, req.file.buffer);
+
+      urlImatge = `/uploads/alumnes/${nomFitxer}`;
+      await connection.execute(
+        'UPDATE alumne SET urlImatge = ? WHERE idAlumne = ?',
+        [urlImatge, result.insertId]
+      );
+    }
+
+    await connection.commit();
+
     res.status(201).json({
       idAlumne: result.insertId,
       ...dades,
-      conflictiu: !!dades.conflictiu
+      conflictiu: !!dades.conflictiu,
+      urlImatge
     });
   } catch (err) {
+    if (connection) await connection.rollback();
+    if (rutaFitxer) await fs.unlink(rutaFitxer).catch(() => {});
     console.error(err);
     res.status(500).json({ error: 'No s’ha pogut crear l’alumne' });
+  } finally {
+    if (connection) connection.release();
   }
 });
 

@@ -22,11 +22,35 @@
     <button type="button" (click)="guardar()" [disabled]="carregant()">Afegir Alumne</button>
 
     @if (missatge()) {
-      <p [style.color]="esError() ? 'crimson' : 'seagreen'">{{ missatge() }}</p>
+      <p class="missatge" [class.error]="esError()">{{ missatge() }}</p>
     }
   </div>
 
   <figure class="pantalla">
-    <img src="fotoalumnetemporal.jpg" alt="Fotografia de l'alumne">
+    <input #fitxer type="file" accept=".jpg,.jpeg,image/jpeg" hidden (change)="triarImatge($event)">
+
+    <div class="zona-imatge">
+      @if (previsualitzacio(); as src) {
+        <img [src]="src" alt="Fotografia de l'alumne">
+      } @else {
+        <div class="placeholder" (click)="fitxer.click()">
+          <svg viewBox="0 0 24 24" width="72" height="72" fill="none" stroke="currentColor"
+               stroke-width="1.5" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+          </svg>
+          <span>Afegir foto (opcional)</span>
+        </div>
+      }
+    </div>
+
+    <div class="botons-imatge">
+      <button type="button" (click)="fitxer.click()">
+        {{ previsualitzacio() ? 'Canviar imatge' : 'Pujar imatge' }}
+      </button>
+      @if (previsualitzacio()) {
+        <button type="button" (click)="treureImatge()">Treure</button>
+      }
+    </div>
   </figure>
 </div>
