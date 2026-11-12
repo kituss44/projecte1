@@ -1,11 +1,13 @@
 <main class="pantalla">
   @if (alumne(); as a) {
-    @if (a.urlImatge) {
-      <img [src]="api + a.urlImatge" [alt]="'Foto de ' + a.nom">
-    } @else {
-      <p class="sense-foto">Aquest alumne no té foto</p>
-    }
-    <p class="nom-alumne-foto">{{ a.nom }} {{ a.cognom1 }} {{ a.cognom2 }}</p>
+    <div class="foto-contenedor">
+      @if (a.urlImatge) {
+        <img [src]="api + a.urlImatge" [alt]="'Foto de ' + a.nom">
+      } @else {
+        <p class="sense-foto">Aquest alumne no té foto</p>
+      }
+      <p class="nom-alumne-foto">{{ a.nom }} {{ a.cognom1 }} {{ a.cognom2 }}</p>
+    </div>
   } @else {
     <img src="fotoalumnetemporal.jpg" alt="Foto Alumne">
   }
