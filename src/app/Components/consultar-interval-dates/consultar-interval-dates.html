@@ -9,22 +9,41 @@
 
         <!-- Data inicial -->
         <div class="fila">
-          <input type="text" class="campo campo-grande" placeholder="Dia" aria-label="Dia inicial" inputmode="numeric" maxlength="2">
-          <input type="text" class="campo campo-grande" placeholder="Mes" aria-label="Mes inicial" inputmode="numeric" maxlength="2">
-          <input type="text" class="campo campo-grande" placeholder="Any" aria-label="Any inicial" inputmode="numeric" maxlength="4">
+          <input #dia1 type="text" class="campo campo-grande" placeholder="Dia" aria-label="Dia inicial"
+                 inputmode="numeric" maxlength="2"
+                 (keyup.enter)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
+          <input #mes1 type="text" class="campo campo-grande" placeholder="Mes" aria-label="Mes inicial"
+                 inputmode="numeric" maxlength="2"
+                 (keyup.enter)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
+          <input #any1 type="text" class="campo campo-grande" placeholder="Any" aria-label="Any inicial"
+                 inputmode="numeric" maxlength="4"
+                 (keyup.enter)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
         </div>
 
         <span class="separador">-</span>
 
         <!-- Data final -->
         <div class="fila">
-          <input type="text" class="campo campo-grande" placeholder="Dia" aria-label="Dia final" inputmode="numeric" maxlength="2">
-          <input type="text" class="campo campo-grande" placeholder="Mes" aria-label="Mes final" inputmode="numeric" maxlength="2">
-          <input type="text" class="campo campo-grande" placeholder="Any" aria-label="Any final" inputmode="numeric" maxlength="4">
+          <input #dia2 type="text" class="campo campo-grande" placeholder="Dia" aria-label="Dia final"
+                 inputmode="numeric" maxlength="2"
+                 (keyup.enter)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
+          <input #mes2 type="text" class="campo campo-grande" placeholder="Mes" aria-label="Mes final"
+                 inputmode="numeric" maxlength="2"
+                 (keyup.enter)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
+          <input #any2 type="text" class="campo campo-grande" placeholder="Any" aria-label="Any final"
+                 inputmode="numeric" maxlength="4"
+                 (keyup.enter)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
         </div>
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
       </div>
 
-      <button type="button" class="boton" routerLink="/consultarvista">Buscar</button>
+      <button type="button" class="boton"
+              (click)="buscar(dia1.value, mes1.value, any1.value, dia2.value, mes2.value, any2.value)">
+        Buscar
+      </button>
     </section>
 
   </main>

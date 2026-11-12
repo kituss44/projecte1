@@ -268,7 +268,6 @@ app.post('/api/importar-professors', pujarArxiu, async (req, res) => {
       .map(fila => String(fila.find(celda => String(celda).trim() !== '') ?? '').trim())
       .filter(nombre => nombre !== '');
 
-    // Si la primera fila es una cabecera (Nom, Professor, Nom complet...), se descarta
     const esCabecera = /^(nom|nombre|professor|professorat|profesor|nom complet|nomprofessor)$/i;
     if (nombres.length > 0 && esCabecera.test(nombres[0])) {
       nombres.shift();
@@ -285,7 +284,6 @@ app.post('/api/importar-professors', pujarArxiu, async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Para no duplicar: se ignoran los que ya existen y los repetidos dentro del Excel
     const [existentes] = await connection.query('SELECT nomprofessor FROM professor');
     const vistos = new Set(existentes.map(r => r.nomprofessor.trim().toLowerCase()));
 
@@ -711,5 +709,168 @@ app.post('/api/importar-imatges', pujarImatges, async (req, res) => {
     if (connection) connection.release();
   }
 });
+
+app.get('/api/alumnes/sortides-per-data', async (req, res) => {
+  const data = String(req.query.data ?? '').trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || isNaN(Date.parse(data))) {
+    return res.status(400).json({ error: 'La data ha de tenir el format AAAA-MM-DD' });
+  }
+
+  try {
+    const [sortides] = await pool.execute(
+      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
+              a.codiGrupMatriculat,
+              r.dataEntrada,
+              r.dataSortida,
+              TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
+              r.professor
+       FROM registrelavabo r
+       JOIN alumne a ON a.idAlumne = r.idAlumne
+       WHERE r.dataEntrada >= ?
+         AND r.dataEntrada < DATE_ADD(?, INTERVAL 1 DAY)
+       ORDER BY r.dataEntrada`,
+      [data, data]
+    );
+
+    const durades = sortides.map(s => s.durada).filter(d => d !== null);
+    const tempsMitja = durades.length
+      ? Math.round(durades.reduce((a, b) => a + b, 0) / durades.length)
+      : null;
+
+    res.json({ data, sortides, tempsMitja, total: sortides.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+
+app.get('/api/alumnes/sortides-per-grup', async (req, res) => {
+  const grup = String(req.query.grup ?? '').trim();
+
+  if (!grup) {
+    return res.status(400).json({ error: 'Cal indicar el codi de grup' });
+  }
+
+  try {
+    const [existeix] = await pool.execute(
+      'SELECT 1 FROM alumne WHERE codiGrupMatriculat = ? LIMIT 1',
+      [grup]
+    );
+    if (existeix.length === 0) {
+      return res.status(404).json({ error: 'No existeix cap alumne en aquest grup' });
+    }
+
+    const [sortides] = await pool.execute(
+      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
+              a.codiGrupMatriculat,
+              r.dataEntrada,
+              r.dataSortida,
+              TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
+              r.professor
+       FROM registrelavabo r
+       JOIN alumne a ON a.idAlumne = r.idAlumne
+       WHERE a.codiGrupMatriculat = ?
+       ORDER BY r.dataEntrada DESC`,
+      [grup]
+    );
+
+    const durades = sortides.map(s => s.durada).filter(d => d !== null);
+    const tempsMitja = durades.length
+      ? Math.round(durades.reduce((a, b) => a + b, 0) / durades.length)
+      : null;
+
+    res.json({ grup, sortides, tempsMitja, total: sortides.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+app.get('/api/alumnes/sortides-per-professor', async (req, res) => {
+  const professor = String(req.query.professor ?? '').trim();
+
+  if (!professor) {
+    return res.status(400).json({ error: 'Cal indicar el nom del professor' });
+  }
+
+  // Escapa els comodins de LIKE perquè l'usuari no els pugui injectar
+  const patro = `%${professor.replace(/[\\%_]/g, '\\$&')}%`;
+
+  try {
+    const [sortides] = await pool.execute(
+      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
+              a.codiGrupMatriculat,
+              r.dataEntrada,
+              r.dataSortida,
+              TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
+              r.professor
+       FROM registrelavabo r
+       JOIN alumne a ON a.idAlumne = r.idAlumne
+       WHERE r.professor LIKE ?
+       ORDER BY r.dataEntrada DESC`,
+      [patro]
+    );
+
+    const durades = sortides.map(s => s.durada).filter(d => d !== null);
+    const tempsMitja = durades.length
+      ? Math.round(durades.reduce((a, b) => a + b, 0) / durades.length)
+      : null;
+
+    res.json({ professor, sortides, tempsMitja, total: sortides.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+
+app.get('/api/alumnes/sortides-per-interval', async (req, res) => {
+  const desde = String(req.query.desde ?? '').trim();
+  const fins = String(req.query.fins ?? '').trim();
+
+  const dataValida = s => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    const d = new Date(`${s}T00:00:00Z`);
+    return !isNaN(d) && d.toISOString().slice(0, 10) === s;
+  };
+
+  if (!dataValida(desde) || !dataValida(fins)) {
+    return res.status(400).json({ error: 'Les dates han de tenir el format AAAA-MM-DD' });
+  }
+
+  if (desde > fins) {
+    return res.status(400).json({ error: 'La data inicial no pot ser posterior a la final' });
+  }
+
+  try {
+    const [sortides] = await pool.execute(
+      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
+              a.codiGrupMatriculat,
+              r.dataEntrada,
+              r.dataSortida,
+              TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
+              r.professor
+       FROM registrelavabo r
+       JOIN alumne a ON a.idAlumne = r.idAlumne
+       WHERE r.dataEntrada >= ?
+         AND r.dataEntrada < DATE_ADD(?, INTERVAL 1 DAY)
+       ORDER BY r.dataEntrada DESC`,
+      [desde, fins]
+    );
+
+    const durades = sortides.map(s => s.durada).filter(d => d !== null);
+    const tempsMitja = durades.length
+      ? Math.round(durades.reduce((a, b) => a + b, 0) / durades.length)
+      : null;
+
+    res.json({ desde, fins, sortides, tempsMitja, total: sortides.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 
 app.listen(3000, () => console.log('Servidor a http://localhost:3000'));

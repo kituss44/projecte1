@@ -8,13 +8,25 @@
         <h2 class="titulo">Buscar per data</h2>
 
         <div class="fila">
-          <input type="text" class="campo campo-grande" placeholder="Dia" aria-label="Dia" inputmode="numeric" maxlength="2">
-          <input type="text" class="campo campo-grande" placeholder="Mes" aria-label="Mes" inputmode="numeric" maxlength="2">
-          <input type="text" class="campo campo-grande" placeholder="Any" aria-label="Any" inputmode="numeric" maxlength="4">
+          <input #dia type="text" class="campo campo-grande" placeholder="Dia" aria-label="Dia"
+                 inputmode="numeric" maxlength="2"
+                 (keyup.enter)="buscar(dia.value, mes.value, any.value)">
+          <input #mes type="text" class="campo campo-grande" placeholder="Mes" aria-label="Mes"
+                 inputmode="numeric" maxlength="2"
+                 (keyup.enter)="buscar(dia.value, mes.value, any.value)">
+          <input #any type="text" class="campo campo-grande" placeholder="Any" aria-label="Any"
+                 inputmode="numeric" maxlength="4"
+                 (keyup.enter)="buscar(dia.value, mes.value, any.value)">
         </div>
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
       </div>
 
-      <button type="button" class="boton" routerLink="/consultarvista">Buscar</button>
+      <button type="button" class="boton" (click)="buscar(dia.value, mes.value, any.value)">
+        Buscar
+      </button>
     </section>
 
   </main>

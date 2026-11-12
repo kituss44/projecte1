@@ -6,10 +6,16 @@
     <section class="panel">
       <div class="campos">
         <h2 class="titulo">Buscar per codi de grup matriculat</h2>
-        <input type="text" class="campo campo-grande" placeholder="Codi grup matriculat" aria-label="Codi grup matriculat">
+        <input #grup type="text" class="campo campo-grande" placeholder="Codi grup matriculat"
+               aria-label="Codi grup matriculat"
+               (keyup.enter)="buscar(grup.value)">
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
       </div>
 
-      <button type="button" class="boton" routerLink="/consultarvista">Buscar</button>
+      <button type="button" class="boton" (click)="buscar(grup.value)">Buscar</button>
     </section>
 
   </main>

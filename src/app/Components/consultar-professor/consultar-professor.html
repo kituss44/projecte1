@@ -6,10 +6,16 @@
     <section class="panel">
       <div class="campos">
         <h2 class="titulo">Buscar per professor</h2>
-        <input type="text" class="campo campo-grande" placeholder="Professor" aria-label="Professor">
+        <input #professor type="text" class="campo campo-grande" placeholder="Professor"
+               aria-label="Professor"
+               (keyup.enter)="buscar(professor.value)">
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
       </div>
 
-      <button type="button" class="boton" routerLink="/consultarvista">Buscar</button>
+      <button type="button" class="boton" (click)="buscar(professor.value)">Buscar</button>
     </section>
 
   </main>

@@ -9,16 +9,31 @@
     } @else if (error()) {
       <p class="missatge">{{ error() }}</p>
     } @else if (salidas().length === 0) {
-      <p class="missatge">Aquest alumne no té cap sortida registrada.</p>
+      <p class="missatge">
+        @switch (modo()) {
+          @case ('data') { No hi ha cap sortida registrada aquesta data. }
+          @case ('grup') { Aquest grup no té cap sortida registrada. }
+          @case ('professor') { No hi ha cap sortida registrada per a aquest professor. }
+          @case ('interval') { No hi ha cap sortida registrada en aquest interval de dates. }
+          @default { Aquest alumne no té cap sortida registrada. }
+        }
+      </p>
     }
+
 
     @for (sortida of salidas(); track $index) {
       <div class="sortida-card">
         <div class="capcalera">
           <div class="camp alumne">
-            <p><strong>{{ alumno()?.nom }}</strong> {{ alumno()?.cognom1 }} {{ alumno()?.cognom2 }}</p>
-            <p class="grup">Grup: {{ alumno()?.codiGrupMatriculat }}</p>
+            @if (mostraAlumneAFila()) {
+              <p><strong>{{ sortida.nom }}</strong> {{ sortida.cognom1 }} {{ sortida.cognom2 }}</p>
+              <p class="grup">Grup: {{ sortida.codiGrupMatriculat }}</p>
+            } @else {
+              <p><strong>{{ alumno()?.nom }}</strong> {{ alumno()?.cognom1 }} {{ alumno()?.cognom2 }}</p>
+              <p class="grup">Grup: {{ alumno()?.codiGrupMatriculat }}</p>
+            }
           </div>
+
           <div class="camp professor">
             <p class="etiqueta">Professor</p>
             <p>{{ sortida.professor || '—' }}</p>
