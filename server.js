@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'patata',
+  password: '1234qwer',
   database: 'cacaproject'
 });
 
@@ -948,6 +948,70 @@ app.post('/api/lavabo/registre', async (req, res) => {
       error: 'No s’ha pogut guardar el registre',
       detall: err.sqlMessage || err.message
     });
+  }
+});
+
+
+// ---------- CREAR / MODIFICAR ALUMNE ----------
+
+const aNullAl = v => {
+  const t = String(v ?? '').trim();
+  return t === '' || t === '--' ? null : t;
+};
+
+function validarAlumne(body) {
+  const idIeduca = String(body.idIeduca ?? '').trim();
+  const nom = String(body.nom ?? '').trim();
+  const codiGrupMatriculat = String(body.codiGrupMatriculat ?? '').trim();
+
+  if (!idIeduca || !nom || !codiGrupMatriculat) {
+    return { error: 'Falten camps obligatoris (id ieduca, nom i grup)' };
+  }
+
+  const cognom1 = aNullAl(body.cognom1);
+  const cognom2 = aNullAl(body.cognom2);
+
+  const camps = [idIeduca, nom, codiGrupMatriculat, cognom1, cognom2];
+  if (camps.some(v => v !== null && v.length > 45)) {
+    return { error: 'Cap camp pot superar els 45 caràcters' };
+  }
+
+  return {
+    dades: {
+      idIeduca, nom, cognom1, cognom2, codiGrupMatriculat,
+      conflictiu: body.conflictiu ? 1 : 0
+    }
+  };
+}
+
+app.post('/api/alumnes', async (req, res) => {
+  const { dades, error } = validarAlumne(req.body);
+  if (error) return res.status(400).json({ error });
+
+  try {
+    const [dup] = await pool.execute(
+      'SELECT 1 FROM alumne WHERE idIeduca = ? LIMIT 1',
+      [dades.idIeduca]
+    );
+    if (dup.length > 0) {
+      return res.status(409).json({ error: 'Ja existeix un alumne amb aquest id ieduca' });
+    }
+
+    const [result] = await pool.execute(
+      `INSERT INTO alumne (idIeduca, nom, cognom1, cognom2, codiGrupMatriculat, conflictiu)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [dades.idIeduca, dades.nom, dades.cognom1, dades.cognom2,
+        dades.codiGrupMatriculat, dades.conflictiu]
+    );
+
+    res.status(201).json({
+      idAlumne: result.insertId,
+      ...dades,
+      conflictiu: !!dades.conflictiu
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'No s’ha pogut crear l’alumne' });
   }
 });
 

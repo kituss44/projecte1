@@ -4,22 +4,26 @@
   <div class="panell">
     <h1 class="titol">Crear alumne</h1>
 
-    <input type="text" class="id-alumne" placeholder="Id alumne">
-
     <div class="fila">
-      <input type="text" placeholder="Nom">
-      <input type="text" placeholder="Cognom 1">
-      <input type="text" placeholder="Cognom 2">
+      <input type="text" placeholder="Nom" name="nom" [(ngModel)]="form.nom">
+      <input type="text" placeholder="Cognom 1" name="cognom1" [(ngModel)]="form.cognom1">
+      <input type="text" placeholder="Cognom 2" name="cognom2" [(ngModel)]="form.cognom2">
     </div>
 
-    <input type="text" placeholder="Codi grup matricular">
-    <input type="text" placeholder="id ieduca">
+    <input type="text" placeholder="Codi grup matriculat" name="grup"
+           [(ngModel)]="form.codiGrupMatriculat">
+    <input type="text" placeholder="id ieduca" name="idIeduca" [(ngModel)]="form.idIeduca"
+           (keyup.enter)="guardar()">
 
     <label class="conflictiu">
-      <input type="checkbox"> Conflictiu
+      <input type="checkbox" name="conflictiu" [(ngModel)]="form.conflictiu"> Conflictiu
     </label>
 
-    <button type="button">Afegir Alumne</button>
+    <button type="button" (click)="guardar()" [disabled]="carregant()">Afegir Alumne</button>
+
+    @if (missatge()) {
+      <p [style.color]="esError() ? 'crimson' : 'seagreen'">{{ missatge() }}</p>
+    }
   </div>
 
   <figure class="pantalla">
