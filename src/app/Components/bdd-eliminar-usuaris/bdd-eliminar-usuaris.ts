@@ -33,7 +33,6 @@ export class BddEliminarUsuaris {  private http = inject(HttpClient);
     return this.usuaris().filter(u => u.userCorreu.toLowerCase().includes(q));
   });
 
-  // ⚠️ Adapta-ho a on guardes el token al login
   private headers() {
     const usuari = JSON.parse(sessionStorage.getItem('usuari') ?? '{}');
     const token = usuari.token ?? '';
