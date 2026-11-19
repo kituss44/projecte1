@@ -4,21 +4,56 @@
   <div class="panell">
     <h1 class="titol">Eliminar alumne</h1>
 
-    <input type="text" class="id-alumne" placeholder="Id alumne">
+    <input type="text" class="id-alumne" placeholder="Id alumne" name="idAlumne"
+           [(ngModel)]="idAlumne" (ngModelChange)="idCanviat()" (keyup.enter)="buscar()">
+
+    <button type="button" (click)="buscar()" [disabled]="carregant()">Buscar</button>
 
     <div class="fila">
-      <input type="text" placeholder="Nom">
-      <input type="text" placeholder="Cognom 1">
-      <input type="text" placeholder="Cognom 2">
+      <input type="text" placeholder="Nom" name="nom" [(ngModel)]="form.nom" disabled>
+      <input type="text" placeholder="Cognom 1" name="cognom1" [(ngModel)]="form.cognom1" disabled>
+      <input type="text" placeholder="Cognom 2" name="cognom2" [(ngModel)]="form.cognom2" disabled>
     </div>
 
-    <input type="text" placeholder="Codi grup matricular">
-    <input type="text" placeholder="id ieduca">
+    <input type="text" placeholder="Codi grup matriculat" name="grup"
+           [(ngModel)]="form.codiGrupMatriculat" disabled>
+    <input type="text" placeholder="id ieduca" name="idIeduca"
+           [(ngModel)]="form.idIeduca" disabled>
 
-    <button type="button">Buscar / Eliminar</button>
+    <label class="conflictiu">
+      <input type="checkbox" name="conflictiu" [(ngModel)]="form.conflictiu" disabled> Conflictiu
+    </label>
+
+    <button type="button" class="eliminar" [class.confirmant]="confirmant()"
+            (click)="eliminar()" [disabled]="!trobat() || carregant() || esperant()">
+      {{ confirmant()
+      ? 'Estàs segur que vols eliminar aquest alumne? Els registres es conservaran igualment'
+      : 'Eliminar' }}
+    </button>
+
+    @if (confirmant()) {
+      <button type="button" (click)="cancelarConfirmacio()" [disabled]="carregant()">Cancel·lar</button>
+    }
+
+    @if (missatge()) {
+      <p class="missatge" [class.error]="esError()">{{ missatge() }}</p>
+    }
   </div>
 
   <figure class="pantalla">
-    <img src="fotoalumnetemporal.jpg" alt="Fotografia de l'alumne">
+    <div class="zona-imatge">
+      @if (imatge(); as src) {
+        <img [src]="src" alt="Fotografia de l'alumne">
+      } @else {
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" width="72" height="72" fill="none" stroke="currentColor"
+               stroke-width="1.5" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+          </svg>
+          <span>Sense foto</span>
+        </div>
+      }
+    </div>
   </figure>
 </div>

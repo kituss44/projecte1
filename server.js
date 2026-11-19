@@ -340,6 +340,12 @@ async function llistarTaules() {
   return rows.map(r => Object.values(r)[0]);
 }
 
+const pad = n => String(n).padStart(2, '0');
+
+const dataLocal = d =>
+  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+  `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+
 // Llista de taules
 app.get('/api/db/taules', async (req, res) => {
   try {
@@ -359,7 +365,12 @@ app.get('/api/db/taules/:nom', async (req, res) => {
       return res.status(404).json({ error: 'Taula no trobada' });
     }
 
-    const [files] = await pool.query('SELECT * FROM ??', [nom]);
+    const [filesRaw] = await pool.query('SELECT * FROM ??', [nom]);
+    const files = filesRaw.map(fila =>
+      Object.fromEntries(
+        Object.entries(fila).map(([k, v]) => [k, v instanceof Date ? dataLocal(v) : v])
+      )
+    );
     const columnes = files.length ? Object.keys(files[0]) : [];
 
     const [pkRows] = await pool.query(
@@ -719,14 +730,18 @@ app.get('/api/alumnes/sortides-per-data', async (req, res) => {
 
   try {
     const [sortides] = await pool.execute(
-      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
-              a.codiGrupMatriculat,
+      `SELECT r.idAlumne,
+              COALESCE(a.idIeduca, r.idIeduca)                 AS idIeduca,
+              COALESCE(a.nom, r.nomalumn)                      AS nom,
+              COALESCE(a.cognom1, r.cognomalumn1)              AS cognom1,
+              COALESCE(a.cognom2, r.cognomalumn2)              AS cognom2,
+              COALESCE(a.codiGrupMatriculat, r.grupMatriculat) AS codiGrupMatriculat,
               r.dataEntrada,
               r.dataSortida,
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-              JOIN alumne a ON a.idAlumne = r.idAlumne
+              LEFT JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE r.dataEntrada >= ?
          AND r.dataEntrada < DATE_ADD(?, INTERVAL 1 DAY)
        ORDER BY r.dataEntrada`,
@@ -755,23 +770,30 @@ app.get('/api/alumnes/sortides-per-grup', async (req, res) => {
 
   try {
     const [existeix] = await pool.execute(
-      'SELECT 1 FROM alumne WHERE codiGrupMatriculat = ? LIMIT 1',
-      [grup]
+      `SELECT 1 FROM alumne WHERE codiGrupMatriculat = ?
+       UNION
+       SELECT 1 FROM registrelavabo WHERE grupMatriculat = ?
+       LIMIT 1`,
+      [grup, grup]
     );
     if (existeix.length === 0) {
       return res.status(404).json({ error: 'No existeix cap alumne en aquest grup' });
     }
 
     const [sortides] = await pool.execute(
-      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
-              a.codiGrupMatriculat,
+      `SELECT r.idAlumne,
+              COALESCE(a.idIeduca, r.idIeduca)                 AS idIeduca,
+              COALESCE(a.nom, r.nomalumn)                      AS nom,
+              COALESCE(a.cognom1, r.cognomalumn1)              AS cognom1,
+              COALESCE(a.cognom2, r.cognomalumn2)              AS cognom2,
+              COALESCE(a.codiGrupMatriculat, r.grupMatriculat) AS codiGrupMatriculat,
               r.dataEntrada,
               r.dataSortida,
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-              JOIN alumne a ON a.idAlumne = r.idAlumne
-       WHERE a.codiGrupMatriculat = ?
+              LEFT JOIN alumne a ON a.idAlumne = r.idAlumne
+       WHERE COALESCE(a.codiGrupMatriculat, r.grupMatriculat) = ?
        ORDER BY r.dataEntrada DESC`,
       [grup]
     );
@@ -800,14 +822,18 @@ app.get('/api/alumnes/sortides-per-professor', async (req, res) => {
 
   try {
     const [sortides] = await pool.execute(
-      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
-              a.codiGrupMatriculat,
+      `SELECT r.idAlumne,
+              COALESCE(a.idIeduca, r.idIeduca)                 AS idIeduca,
+              COALESCE(a.nom, r.nomalumn)                      AS nom,
+              COALESCE(a.cognom1, r.cognomalumn1)              AS cognom1,
+              COALESCE(a.cognom2, r.cognomalumn2)              AS cognom2,
+              COALESCE(a.codiGrupMatriculat, r.grupMatriculat) AS codiGrupMatriculat,
               r.dataEntrada,
               r.dataSortida,
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-              JOIN alumne a ON a.idAlumne = r.idAlumne
+              LEFT JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE r.professor LIKE ?
        ORDER BY r.dataEntrada DESC`,
       [patro]
@@ -846,14 +872,18 @@ app.get('/api/alumnes/sortides-per-interval', async (req, res) => {
 
   try {
     const [sortides] = await pool.execute(
-      `SELECT a.idAlumne, a.idIeduca, a.nom, a.cognom1, a.cognom2,
-              a.codiGrupMatriculat,
+      `SELECT r.idAlumne,
+              COALESCE(a.idIeduca, r.idIeduca)                 AS idIeduca,
+              COALESCE(a.nom, r.nomalumn)                      AS nom,
+              COALESCE(a.cognom1, r.cognomalumn1)              AS cognom1,
+              COALESCE(a.cognom2, r.cognomalumn2)              AS cognom2,
+              COALESCE(a.codiGrupMatriculat, r.grupMatriculat) AS codiGrupMatriculat,
               r.dataEntrada,
               r.dataSortida,
               TIMESTAMPDIFF(MINUTE, r.dataEntrada, r.dataSortida) AS durada,
               r.professor
        FROM registrelavabo r
-              JOIN alumne a ON a.idAlumne = r.idAlumne
+              LEFT JOIN alumne a ON a.idAlumne = r.idAlumne
        WHERE r.dataEntrada >= ?
          AND r.dataEntrada < DATE_ADD(?, INTERVAL 1 DAY)
        ORDER BY r.dataEntrada DESC`,
@@ -1158,6 +1188,43 @@ app.put('/api/alumnes/:idAlumne', pujarImatgeAlumne, async (req, res) => {
     if (connection) connection.release();
   }
 });
+
+
+// Elimina l'alumne (els registres de lavabo es conserven)
+app.delete('/api/alumnes/:idAlumne', async (req, res) => {
+  const idAlumne = String(req.params.idAlumne).trim();
+  if (!/^\d+$/.test(idAlumne)) {
+    return res.status(400).json({ error: 'L’ID alumne ha de ser un número' });
+  }
+
+  try {
+    const [existents] = await pool.execute(
+      'SELECT urlImatge FROM alumne WHERE idAlumne = ?',
+      [idAlumne]
+    );
+    if (existents.length === 0) {
+      return res.status(404).json({ error: 'Alumne no trobat' });
+    }
+    const urlImatge = existents[0].urlImatge;
+
+    await pool.execute('DELETE FROM alumne WHERE idAlumne = ?', [idAlumne]);
+
+    if (urlImatge) {
+      await fs.unlink(path.join(ALUMNES_DIR, path.basename(urlImatge))).catch(() => {});
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(409).json({
+        error: 'La BD no permet eliminar l’alumne perquè té registres de lavabo (cal canviar la clau forana)'
+      });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'No s’ha pogut eliminar l’alumne' });
+  }
+});
+
 
 
 app.listen(3000, () => console.log('Servidor a http://localhost:3000'));

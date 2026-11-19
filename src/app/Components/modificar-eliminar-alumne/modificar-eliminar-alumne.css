@@ -28,6 +28,13 @@
   border-radius: 20px;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
+}
+
+.zona-imatge {
+  flex: 1;
+  min-height: 0;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -39,6 +46,22 @@
   object-position: center 20%;
   display: block;
   border-radius: 16px;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border: 2px dashed #A7C7E7;
+  border-radius: 16px;
+  background: #D3EAF8;
+  color: #1F3A5F;
+  opacity: 0.6;
 }
 
 .fila {
@@ -56,6 +79,12 @@ input[type="text"] {
   border: 2px solid #BCD6F2;
   border-radius: 8px;
   background: #F6FBFF;
+}
+
+input[type="text"]:disabled {
+  opacity: 0.8;
+  color: #1F3A5F;
+  cursor: not-allowed;
 }
 
 .id-alumne {
@@ -81,9 +110,23 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background: #BFE8DF;
   border: 1px solid black;
+}
+
+button.eliminar:hover:not(:disabled) {
+  background: #F8C9C9;
+}
+
+button.eliminar.confirmant {
+  background: #F8C9C9;
+  border-color: crimson;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .titol {
@@ -93,4 +136,14 @@ button:hover {
   text-align: center;
   padding-bottom: 10px;
   border-bottom: 3px solid #A7C7E7;
+}
+
+.missatge {
+  margin: 0;
+  text-align: center;
+  color: #1F3A5F;
+}
+
+.missatge.error {
+  color: crimson;
 }
