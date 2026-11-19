@@ -4,25 +4,58 @@
   <div class="panell">
     <h1 class="titol">Modificar alumne</h1>
 
-    <input type="text" class="id-alumne" placeholder="Id alumne">
+    <input type="text" class="id-alumne" placeholder="Id alumne" name="idAlumne"
+           [(ngModel)]="idAlumne" (ngModelChange)="idCanviat()" (keyup.enter)="buscar()">
+
+    <button type="button" (click)="buscar()" [disabled]="carregant()">Buscar</button>
 
     <div class="fila">
-      <input type="text" placeholder="Nom">
-      <input type="text" placeholder="Cognom 1">
-      <input type="text" placeholder="Cognom 2">
+      <input type="text" placeholder="Nom" name="nom" [(ngModel)]="form.nom" [disabled]="!trobat()">
+      <input type="text" placeholder="Cognom 1" name="cognom1" [(ngModel)]="form.cognom1" [disabled]="!trobat()">
+      <input type="text" placeholder="Cognom 2" name="cognom2" [(ngModel)]="form.cognom2" [disabled]="!trobat()">
     </div>
 
-    <input type="text" placeholder="Codi grup matricular">
-    <input type="text" placeholder="id ieduca">
+    <input type="text" placeholder="Codi grup matriculat" name="grup"
+           [(ngModel)]="form.codiGrupMatriculat" [disabled]="!trobat()">
+    <input type="text" placeholder="id ieduca" name="idIeduca"
+           [(ngModel)]="form.idIeduca" [disabled]="!trobat()" (keyup.enter)="modificar()">
 
     <label class="conflictiu">
-      <input type="checkbox"> Conflictiu
+      <input type="checkbox" name="conflictiu" [(ngModel)]="form.conflictiu" [disabled]="!trobat()"> Conflictiu
     </label>
 
-    <button type="button">Buscar / Modificar</button>
+    <button type="button" (click)="modificar()" [disabled]="!trobat() || carregant()">Modificar</button>
+
+    @if (missatge()) {
+      <p class="missatge" [class.error]="esError()">{{ missatge() }}</p>
+    }
   </div>
 
   <figure class="pantalla">
-    <img src="fotoalumnetemporal.jpg" alt="Fotografia de l'alumne">
+    <input #fitxer type="file" accept=".jpg,.jpeg,image/jpeg" hidden (change)="triarImatge($event)">
+
+    <div class="zona-imatge">
+      @if (imatgeMostrada(); as src) {
+        <img [src]="src" alt="Fotografia de l'alumne">
+      } @else {
+        <div class="placeholder" [class.inactiu]="!trobat()" (click)="trobat() && fitxer.click()">
+          <svg viewBox="0 0 24 24" width="72" height="72" fill="none" stroke="currentColor"
+               stroke-width="1.5" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+          </svg>
+          <span>{{ trobat() ? 'Afegir foto' : 'Sense foto' }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="botons-imatge">
+      <button type="button" (click)="fitxer.click()" [disabled]="!trobat()">
+        {{ imatgeMostrada() ? 'Canviar imatge' : 'Pujar imatge' }}
+      </button>
+      @if (imatgeMostrada()) {
+        <button type="button" (click)="treureImatge()" [disabled]="!trobat()">Treure</button>
+      }
+    </div>
   </figure>
 </div>

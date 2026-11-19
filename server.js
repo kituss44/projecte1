@@ -1062,4 +1062,83 @@ app.post('/api/alumnes', pujarImatgeAlumne, async (req, res) => {
 });
 
 
+app.put('/api/alumnes/:idAlumne', pujarImatgeAlumne, async (req, res) => {
+  const idAlumne = String(req.params.idAlumne).trim();
+  if (!/^\d+$/.test(idAlumne)) {
+    return res.status(400).json({ error: 'L’ID alumne ha de ser un número' });
+  }
+
+  const { dades, error } = validarAlumne(req.body);
+  if (error) return res.status(400).json({ error });
+
+  const eliminarImatge = req.body.eliminarImatge === 'true';
+  let connection;
+  let vellaUrl = null;
+
+  try {
+    const [existents] = await pool.execute(
+      'SELECT urlImatge FROM alumne WHERE idAlumne = ?',
+      [idAlumne]
+    );
+    if (existents.length === 0) {
+      return res.status(404).json({ error: 'Alumne no trobat' });
+    }
+    vellaUrl = existents[0].urlImatge;
+
+    const [dup] = await pool.execute(
+      'SELECT 1 FROM alumne WHERE idIeduca = ? AND idAlumne <> ? LIMIT 1',
+      [dades.idIeduca, idAlumne]
+    );
+    if (dup.length > 0) {
+      return res.status(409).json({ error: 'Ja existeix un altre alumne amb aquest id ieduca' });
+    }
+
+    let urlImatge = vellaUrl;
+    if (req.file) {
+      const idSegur = String(dades.idIeduca).replace(/[^\w-]/g, '_');
+      urlImatge = `/uploads/alumnes/${idSegur}.jpg`;
+    } else if (eliminarImatge) {
+      urlImatge = null;
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `UPDATE alumne
+       SET idIeduca = ?, nom = ?, cognom1 = ?, cognom2 = ?,
+           codiGrupMatriculat = ?, conflictiu = ?, urlImatge = ?
+       WHERE idAlumne = ?`,
+      [dades.idIeduca, dades.nom, dades.cognom1, dades.cognom2,
+        dades.codiGrupMatriculat, dades.conflictiu, urlImatge, idAlumne]
+    );
+
+    if (req.file) {
+      await fs.mkdir(ALUMNES_DIR, { recursive: true });
+      await fs.writeFile(path.join(ALUMNES_DIR, path.basename(urlImatge)), req.file.buffer);
+    }
+
+    await connection.commit();
+
+    // Esborra el fitxer antic si ja no s'utilitza
+    if (vellaUrl && vellaUrl !== urlImatge) {
+      await fs.unlink(path.join(ALUMNES_DIR, path.basename(vellaUrl))).catch(() => {});
+    }
+
+    res.json({
+      idAlumne: Number(idAlumne),
+      ...dades,
+      conflictiu: !!dades.conflictiu,
+      urlImatge
+    });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error(err);
+    res.status(500).json({ error: 'No s’ha pogut modificar l’alumne' });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+
 app.listen(3000, () => console.log('Servidor a http://localhost:3000'));
