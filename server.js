@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: '1234qwer',
+  password: 'patata',
   database: 'cacaproject'
 });
 
@@ -875,6 +875,18 @@ app.get('/api/alumnes/sortides-per-interval', async (req, res) => {
 
 // ===== LAVABO =====
 
+// Llista de noms de professors (per al desplegable de suggeriments)
+app.get('/api/professors', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT nomprofessor FROM professor ORDER BY nomprofessor'
+    );
+    res.json(rows.map(r => r.nomprofessor));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
 // Busca un alumne pel seu idAlumne (per mostrar la foto)
 app.get('/api/lavabo/alumne/:idAlumne', async (req, res) => {
   const idAlumne = String(req.params.idAlumne).trim();
@@ -918,6 +930,13 @@ app.post('/api/lavabo/registre', async (req, res) => {
   }
 
   try {
+    const [profs] = await pool.execute(
+      'SELECT 1 FROM professor WHERE nomprofessor = ? LIMIT 1',
+      [String(professor).trim()]
+    );
+    if (profs.length === 0) {
+      return res.status(400).json({ error: 'El professor no existeix' });
+    }
     // Les dades de l'alumne es llegeixen de la BD, no es fia del client
     const [alumnes] = await pool.execute(
       `SELECT idAlumne, idIeduca, nom, cognom1, cognom2, codiGrupMatriculat

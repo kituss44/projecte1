@@ -98,3 +98,45 @@
 }
 
 .error { color: #c0392b; }
+
+.professor-wrap {
+  position: relative;
+}
+
+.suggeriments {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  background-color: #FFFFFF;
+  border: 2px solid #A7C7E7;
+  border-radius: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(31, 58, 86, 0.15);
+}
+
+.suggeriments li {
+  padding: 10px 12px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.suggeriments li:hover {
+  background-color: #BFE8DF;
+}
+
+.suggeriments li.sense-resultats {
+  cursor: default;
+  font-weight: normal;
+  opacity: 0.6;
+}
+
+.suggeriments li.sense-resultats:hover {
+  background-color: transparent;
+}

@@ -8,8 +8,27 @@
         <input type="text" class="campo" placeholder="Id alumne (Numero)" aria-label="Id alumne"
                [value]="idAlumne()" (input)="canviId($any($event.target).value)"
                (keyup.enter)="!alumneTrobat() && buscar()">
-        <input type="text" class="campo" placeholder="Professor que l'ha deixat sortir" aria-label="Professor"
-               [value]="professor()" (input)="professor.set($any($event.target).value)">
+
+        <div class="professor-wrap">
+          <input type="text" class="campo" placeholder="Professor que l'ha deixat sortir" aria-label="Professor"
+                 autocomplete="off"
+                 [value]="professor()"
+                 (focus)="carregarProfessors()"
+                 (input)="canviProfessor($any($event.target).value)"
+                 (blur)="menuObert.set(false)"
+                 (keydown.enter)="enterProfessor()">
+
+          @if (menuObert() && professor().trim()) {
+            <ul class="suggeriments">
+              @for (p of suggeriments(); track p) {
+                <!-- mousedown + preventDefault: tria abans que el blur tanqui el menú -->
+                <li (mousedown)="$event.preventDefault(); triarProfessor(p)">{{ p }}</li>
+              } @empty {
+                <li class="sense-resultats">Cap professor coincideix</li>
+              }
+            </ul>
+          }
+        </div>
       </div>
 
       @if (error()) {
