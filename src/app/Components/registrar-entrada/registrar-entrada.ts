@@ -37,6 +37,16 @@ export class RegistrarEntrada {
     return this.professors().filter(p => normalitza(p).includes(text));
   });
 
+  constructor() {
+    // Si arribem des de "Buscar manualment" amb un alumne confirmat, ja el deixem carregat
+    // (l'id queda escrit i la foto visible; només falta triar el professor)
+    const alumne = history.state?.['alumne'] as Alumne | undefined;
+    if (alumne) {
+      this.alumneTrobat.set(alumne);
+      this.idAlumne.set(String(alumne.idAlumne));
+    }
+  }
+
   // Cada cop que es fa clic al recuadre es torna a demanar la llista (per veure professors nous)
   carregarProfessors() {
     this.http.get<string[]>(`${API}/api/professors`).subscribe({

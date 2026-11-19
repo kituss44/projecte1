@@ -905,6 +905,101 @@ app.get('/api/alumnes/sortides-per-interval', async (req, res) => {
 
 // ===== LAVABO =====
 
+// Camps de l'alumne que es poden cercar (clau del front -> columna de la BD)
+const CAMPS_ALUMNE = {
+  nom: 'nom',
+  cognom1: 'cognom1',
+  cognom2: 'cognom2',
+  grup: 'codiGrupMatriculat',
+  idIeduca: 'idIeduca'
+};
+
+// Suggeriments per a un camp, filtrats pels altres camps ja triats
+app.get('/api/lavabo/suggeriments', async (req, res) => {
+  const camp = String(req.query.camp ?? '');
+  if (!CAMPS_ALUMNE[camp]) {
+    return res.status(400).json({ error: 'Camp no vàlid' });
+  }
+
+  const columna = CAMPS_ALUMNE[camp];
+  const text = String(req.query.text ?? '').trim();
+
+  const where = [`${columna} IS NOT NULL`, `${columna} <> ''`];
+  const params = [];
+
+  // Els altres camps ja triats actuen com a filtre (valor exacte)
+  for (const [clau, col] of Object.entries(CAMPS_ALUMNE)) {
+    if (clau === camp) continue;
+    const valor = String(req.query[clau] ?? '').trim();
+    if (valor) {
+      where.push(`${col} = ?`);
+      params.push(valor);
+    }
+  }
+
+  if (text) {
+    where.push(`${columna} LIKE ?`);
+    params.push(`%${text.replace(/[\\%_]/g, '\\$&')}%`);
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT DISTINCT ${columna} AS valor
+       FROM alumne
+       WHERE ${where.join(' AND ')}
+       ORDER BY ${columna}
+       LIMIT 50`,
+      params
+    );
+    res.json(rows.map(r => r.valor));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Cerca un alumne per les dades triades (nom, cognoms, grup, idIeduca)
+app.get('/api/lavabo/cerca', async (req, res) => {
+  const where = [];
+  const params = [];
+
+  for (const [clau, col] of Object.entries(CAMPS_ALUMNE)) {
+    const valor = String(req.query[clau] ?? '').trim();
+    if (valor) {
+      where.push(`${col} = ?`);
+      params.push(valor);
+    }
+  }
+
+  if (where.length === 0) {
+    return res.status(400).json({ error: 'Cal omplir almenys un camp' });
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT idAlumne, idIeduca, nom, cognom1, cognom2,
+              codiGrupMatriculat, urlImatge, conflictiu
+       FROM alumne
+       WHERE ${where.join(' AND ')}
+       LIMIT 2`,
+      params
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Alumne no trobat' });
+    }
+    if (rows.length > 1) {
+      return res.status(409).json({
+        error: 'Hi ha més d’un alumne amb aquestes dades. Afegeix-ne més (cognoms, grup...)'
+      });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 // Llista de noms de professors (per al desplegable de suggeriments)
 app.get('/api/professors', async (req, res) => {
   try {

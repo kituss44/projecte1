@@ -1,31 +1,64 @@
 <app-menu-header/>
 
+<!-- Plantilla d'un camp amb desplegable (es reutilitza per als 5 camps) -->
+<ng-template #campTpl let-camp="camp" let-placeholder="placeholder">
+  <div class="camp-wrap">
+    <input type="text" class="campo" autocomplete="off"
+           [placeholder]="placeholder" [attr.aria-label]="placeholder"
+           [value]="valorText(camp)"
+           (focus)="obrirMenu(camp)"
+           (click)="obrirMenu(camp)"
+           (input)="canviText(camp, $any($event.target).value)"
+           (blur)="campObert.set(null)"
+           (keydown.enter)="enterCamp(camp)">
+
+    @if (campObert() === camp) {
+      <ul class="suggeriments">
+        @for (s of suggeriments(); track s) {
+          <!-- mousedown + preventDefault: tria abans que el blur tanqui el menú -->
+          <li (mousedown)="$event.preventDefault(); triarValor(camp, s)">{{ s }}</li>
+        } @empty {
+          <li class="sense-resultats">Cap coincidència</li>
+        }
+      </ul>
+    }
+  </div>
+</ng-template>
+
 <div class="registre_div">
   <section class="panel">
 
     <div class="campos">
       <div class="fila">
-        <input type="text" class="campo" placeholder="Nom" aria-label="Nom">
-        <input type="text" class="campo" placeholder="Cognom 1" aria-label="Cognom 1">
-        <input type="text" class="campo" placeholder="Cognom 2" aria-label="Cognom 2">
+        <ng-container *ngTemplateOutlet="campTpl; context: { camp: 'nom', placeholder: 'Nom' }"></ng-container>
+        <ng-container *ngTemplateOutlet="campTpl; context: { camp: 'cognom1', placeholder: 'Cognom 1' }"></ng-container>
+        <ng-container *ngTemplateOutlet="campTpl; context: { camp: 'cognom2', placeholder: 'Cognom 2' }"></ng-container>
       </div>
 
-      <input type="text" class="campo" placeholder="Codi grup matriculat" aria-label="Codi grup matriculat">
+      <ng-container *ngTemplateOutlet="campTpl; context: { camp: 'grup', placeholder: 'Codi grup matriculat' }"></ng-container>
 
       <div class="separador-o">
         <span>o</span>
       </div>
 
-      <input type="text" class="campo" placeholder="Id ieduca" aria-label="Id ieduca">
+      <ng-container *ngTemplateOutlet="campTpl; context: { camp: 'idIeduca', placeholder: 'Id ieduca' }"></ng-container>
     </div>
 
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
     <div class="acciones">
-      <button type="button" class="boton">Buscar alumne</button>
+      @if (alumneTrobat()) {
+        <button type="button" class="boton" (click)="confirmar()">Confirmar</button>
+      } @else {
+        <button type="button" class="boton" (click)="buscar()">Buscar alumne</button>
+      }
       <button type="button" class="boton" routerLink="/inserir">Tornar</button>
     </div>
 
   </section>
 </div>
 
-<app-foto-alumne/>
+<app-foto-alumne [alumne]="alumneTrobat()"/>
 <app-llistat-alumnes-lavabo/>
